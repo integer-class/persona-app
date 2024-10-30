@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/onboarding.dart'; // Import the onboarding screen
-import 'screens/splash_screen.dart';
+import 'screens/login_screen.dart'; // Import the login screen
+import 'screens/splash_screen.dart'; // Import the splash screen
+import 'screens/login_screen.dart'; // Import the onboarding screen
 
 void main() {
   runApp(MyApp());
@@ -10,11 +11,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter App',
+      title: 'Flutter Demo',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white, // Set scaffold background to white
+        primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(), // Set splash screen as the initial screen
+      home: SplashScreen(), // Set the SplashScreen as the initial home
     );
   }
 }

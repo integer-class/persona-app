@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_screen.dart'; // Import the login screen
 
 class OnboardingScreen extends StatefulWidget {
   @override
@@ -110,9 +111,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   bottom: 30,
                   child: TextButton(
                     onPressed: () {
-                      // Skip to the main screen
+                      // Skip to the LoginScreen
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => MainScreen()),
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
                       );
                     },
                     child: Text(
@@ -130,16 +131,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   bottom: 30,
                   child: TextButton(
                     onPressed: () {
-                      // Move to the next page
+                      // Move to the next page or navigate to LoginScreen if on last page
                       if (_currentIndex < onboardingData.length - 1) {
                         _pageController.nextPage(
                           duration: Duration(milliseconds: 300),
                           curve: Curves.easeIn,
                         );
                       } else {
-                        // If on the last page, navigate to the main screen
+                        // If on the last page, navigate to the LoginScreen
                         Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => MainScreen()),
+                          MaterialPageRoute(builder: (context) => LoginScreen()),
                         );
                       }
                     },
@@ -158,16 +159,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           );
         },
       ),
-    );
-  }
-}
-
-class MainScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Main Screen")),
-      body: Center(child: Text("Welcome to the Main Screen!")),
     );
   }
 }

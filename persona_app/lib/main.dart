@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(), // Set the SplashScreen as the initial home
+      home: SplashScreen(), // Ensure this is set to your splash screen
     );
   }
 }

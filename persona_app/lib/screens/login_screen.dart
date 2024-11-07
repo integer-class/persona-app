@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'signup_screen.dart'; // Import the signup screen
+import 'upload_photo_screen.dart'; // Import the upload photo screen
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -94,6 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
               onPressed: () {
                 // Handle sign-in logic here
+                Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => UploadPhotoScreen()),
+    );
+                
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black, // Button color

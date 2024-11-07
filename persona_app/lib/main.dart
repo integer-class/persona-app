@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart'; // Import the login screen
 import 'screens/splash_screen.dart'; // Import the splash screen
-import 'screens/login_screen.dart'; // Import the onboarding screen
+import 'screens/login_screen.dart'; // Import the onboarding screenzz  zz          
+import 'screens/upload_photo_screen.dart'; //                                                                                                                                                            l
 
 void main() {
   runApp(MyApp());
@@ -15,7 +16,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(), // Ensure this is set to your splash screen
+      home: 
+      //UploadPhotoScreen()
+      SplashScreen(), // Ensure this is set to your splash screen
     );
   }
 }

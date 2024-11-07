@@ -63,6 +63,8 @@ flutter:
     - assets/images/img-onb1.png
     - assets/images/img-onb2.png
     - assets/images/img-onb3.png
+    - assets/images/img-main1.png
+    - assets/images/profile.png
     # You could also include all assets in the images folder like this:
     # - assets/images/
 

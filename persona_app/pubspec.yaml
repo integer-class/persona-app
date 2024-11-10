@@ -13,6 +13,7 @@ dependencies:
   image_picker: ^0.8.4+4 # Dependency for picking images from the gallery
   file_picker: ^5.0.1 # Cross-platform file picker for better compatibility
   cupertino_icons: ^1.0.6 # Dependency for Cupertino icons
+  http: ^0.13.4
 
 dev_dependencies:
   flutter_test:

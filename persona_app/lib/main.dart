@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/login_screen.dart'; // Import the login screen
 import 'screens/splash_screen.dart'; // Import the splash screen
 import 'screens/upload_photo_screen.dart'; // Import the upload photo screen
+import 'screens/signup_screen.dart'; // Import the signup screen
 
 void main() {
   runApp(MyApp());
@@ -11,16 +12,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Persona App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/', // Set the initial route
+      initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(), // The splash screen as the initial screen
-        '/upload': (context) => UploadPhotoScreen(), // Route to the upload photo screen
-        // Add other routes as needed
+        '/': (context) => SplashScreen(),
+        '/login': (context) => LoginScreen(),
+        '/upload': (context) => UploadPhotoScreen(),
+        '/signup': (context) => SignupScreen(), // Add sign-up route
       },
+      debugShowCheckedModeBanner: false,
     );
   }
 }

@@ -14,7 +14,6 @@ dependencies:
   file_picker: ^5.0.1 # Cross-platform file picker for better compatibility
   cupertino_icons: ^1.0.6 # Dependency for Cupertino icons
   http: ^0.13.4
-  
 
 dev_dependencies:
   flutter_test:
@@ -35,4 +34,9 @@ flutter:
     - assets/images/hairstyle.png
     - assets/images/glasses.png
     - assets/images/accessorry.png
-
+    - assets/images/card1.png
+    - assets/images/card2.png
+    - assets/images/card3.png
+    - assets/images/card4.png
+    - assets/images/card5.png
+    - assets/images/card6.png

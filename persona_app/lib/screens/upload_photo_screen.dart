@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:io' as io;
-import 'genderselectionscreen.dart';
 
 class UploadPhotoScreen extends StatefulWidget {
   const UploadPhotoScreen({Key? key}) : super(key: key);
@@ -10,15 +9,15 @@ class UploadPhotoScreen extends StatefulWidget {
 }
 
 class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
-  io.File? _dummyFile; // File dummy yang akan digunakan.
+  io.File? _dummyFile;
 
   @override
   void initState() {
     super.initState();
-    // Simulasikan file dummy (bisa menggunakan file lokal yang sudah ada di proyek).
-    _dummyFile = io.File('assets/images/dummy_photo.jpg'); // Ganti dengan file aktual.
+    _dummyFile = io.File('assets/images/dummy_photo.jpg'); // Ensure this file exists.
   }
 
+  // Function to navigate to the GenderSelectionScreen
   void _navigateToGenderSelection() {
     if (_dummyFile != null) {
       Navigator.pushNamed(
@@ -27,8 +26,18 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
         arguments: {'file': _dummyFile}, // Kirim file dummy sebagai argument.
       );
     } else {
-      print("Dummy file not found.");
+      print('No image selected.');
     }
+  }
+
+  // Function to navigate to the ProfileScreen
+  void _navigateToProfileScreen() {
+    Navigator.pushNamed(context, '/profile');
+  }
+
+  // Function to navigate to the EditProfileScreen
+  void _navigateToEditProfile() {
+    Navigator.pushNamed(context, '/edit');
   }
 
   @override
@@ -50,17 +59,23 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage('assets/images/profile.png'),
+                    GestureDetector(
+                      onTap: _navigateToProfileScreen, // Navigate to ProfileScreen
+                      child: const CircleAvatar(
+                        radius: 20,
+                        backgroundImage: AssetImage('assets/images/profile.png'),
+                      ),
                     ),
                     const SizedBox(width: 10),
-                    const Text(
-                      "Hello, Jessica Tjiu!",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    GestureDetector(
+                      onTap: _navigateToProfileScreen,
+                      child: const Text(
+                        "Hello, Jessica Tjiu!",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -102,7 +117,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
               const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
-                  onPressed: _navigateToGenderSelection, // Langsung navigasi tanpa memilih file.
+                  onPressed: _navigateToGenderSelection, // Navigate to GenderSelectionScreen
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 15),

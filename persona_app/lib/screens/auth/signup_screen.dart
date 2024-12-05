@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart'; // Import the AuthService
+import '../../services/auth_service.dart'; // Import the AuthService
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -11,7 +11,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  final AuthService _authService = AuthService('https://your-api-url.com'); // Replace with your backend URL
   bool _isLoading = false; // Loading state for sign-up process
 
   @override
@@ -97,7 +96,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
                 // Sign Up button
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _signup,
+                  onPressed: () {
+
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -153,37 +154,6 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
     );
-  }
-
-  void _signup() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final fullName = _fullNameController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-
-    if (password != confirmPassword) {
-      setState(() {
-        _isLoading = false;
-      });
-      _showErrorDialog('Passwords do not match.');
-      return;
-    }
-
-    final success = await _authService.signup(email, password);
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (success) {
-      Navigator.pop(context);
-    } else {
-      _showErrorDialog('An error occurred while signing up.');
-    }
   }
 
   void _showErrorDialog(String message) {

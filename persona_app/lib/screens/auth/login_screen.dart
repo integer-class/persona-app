@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'signup_screen.dart'; // Import the signup screen
-import 'upload_photo_screen.dart'; // Import the upload photo screen
-import '../services/auth_service.dart'; // Import the AuthService
+import '../home/upload_photo_screen.dart'; // Import the upload photo screen
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,7 +11,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false; // State for Remember Me toggle
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService('https://your-api-url.com'); // Replace with your backend URL
   bool _isLoading = false; // Loading state for login process
 
   @override
@@ -98,7 +96,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Sign In button
               ElevatedButton(
-                onPressed: _isLoading ? null : _login, // Disable button while loading
+                onPressed: () {
+                  // Add your onPressed logic here
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black, // Button color
                   padding: EdgeInsets.symmetric(vertical: 16),
@@ -158,45 +158,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  void _login() async {
-    setState(() {
-      _isLoading = true; // Start loading
-    });
-
-    final email = _emailController.text;
-    final password = _passwordController.text;
-
-    final success = await _authService.login(email, password);
-
-    setState(() {
-      _isLoading = false; // Stop loading
-    });
-
-    if (success) {
-      // Navigate to the Upload Photo Screen on successful login
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => UploadPhotoScreen()),
-      );
-    } else {
-      // Show error message with specific wrong password message
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Login Failed'),
-            content: Text('Wrong email or password. Please try again.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
   }
 }

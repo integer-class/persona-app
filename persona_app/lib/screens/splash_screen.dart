@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'onboarding.dart'; // Import the onboarding screen
+import 'home/onboarding.dart'; // Import the onboarding screen
 
 class SplashScreen extends StatelessWidget {
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:persona_app/screens/feedbackscreen.dart';
 import 'accessories_screen.dart';
 import 'glasses_screen.dart';
 import 'hairstyle_screen.dart';
@@ -6,7 +7,8 @@ import 'hairstyle_screen.dart';
 class EditScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Ambil gender dari arguments
+    
+
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final String gender = args?['gender'] ?? 'Unknown';
 
@@ -15,13 +17,38 @@ class EditScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Colors.white), // Ubah warna ikon menjadi putih
           onPressed: () {
             Navigator.pop(context); // Responsif kembali ke halaman sebelumnya
           },
         ),
-        title: Text('Edit'),
+        title: Text(
+          'Edit',
+          style: TextStyle(color: Colors.white), // Ubah warna teks menjadi putih
+        ),
         centerTitle: true,
+        actions: [
+          // Ganti tombol Save menjadi teks biasa
+          TextButton(
+            onPressed: () {
+              // Navigasi ke halaman Feedback setelah Save diklik
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FeedbackScreen(),
+                ),
+              );
+            },
+            child: Text(
+              'Save',
+              style: TextStyle(
+                color: Colors.white, // Ubah teks menjadi putih
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
         '/gender_selection': (context) => GenderSelectionScreen(),
         '/edit': (context) => EditScreen(),
         '/profile': (context) => ProfileScreen(), // Consistent naming
+        
       },
       debugShowCheckedModeBanner: false, // Disable debug banner
     );

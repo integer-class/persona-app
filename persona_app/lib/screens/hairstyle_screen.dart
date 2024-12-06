@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:persona_app/screens/editscreen.dart';
 
 void main() {
   runApp(MyApp());
@@ -49,18 +50,25 @@ class _hairstylescreenState extends State<hairstylescreen> {
     },
   ];
 
-  void _onSave() {
-    if (_selectedProductIndex == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a recommendation to save!')),
-      );
-    } else {
-      final product = _products[_selectedProductIndex!];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Saved: ${product['title']}')),
-      );
-    }
+void _onSave() {
+  if (_selectedProductIndex == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Please select a recommendation to save!')),
+    );
+  } else {
+    final product = _products[_selectedProductIndex!];
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Saved: ${product['title']}')),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditScreen(), 
+      ),
+    );
   }
+}
 
   @override
   void dispose() {

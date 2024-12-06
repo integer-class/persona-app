@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:persona_app/data/datasource/remote/auth_remote_datasource.dart';
+import 'package:persona_app/data/datasource/local/auth_local_datasource.dart';
+import 'package:persona_app/data/repositories/auth_repository.dart';
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
 import 'signup_screen.dart'; // Import the signup screen
-import '../home/upload_photo_screen.dart'; // Import the upload photo screen
+import '../classify/upload_photo_screen.dart'; // Import the upload photo screen
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -9,8 +14,12 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false; // State for Remember Me toggle
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(); // Email input controller
+  final TextEditingController _passwordController = TextEditingController(); // Password input controller
+  final AuthRepository _authRepository = AuthRepository(
+    AuthRemoteDataSource(),
+    AuthLocalDatasource(),
+  ); // AuthService instance
   bool _isLoading = false; // Loading state for login process
 
   @override
@@ -96,9 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Sign In button
               ElevatedButton(
-                onPressed: () {
-                  // Add your onPressed logic here
-                },
+                onPressed: _isLoading ? null : _login, // Disable button while loading
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black, // Button color
                   padding: EdgeInsets.symmetric(vertical: 16),
@@ -124,9 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
               GestureDetector(
                 onTap: () {
                   // Navigate to the signup screen
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => SignupScreen()),
-                  );
+                  context.go(RouteConstants.signupRoute);
                 },
                 child: Text.rich(
                   TextSpan(
@@ -152,11 +157,50 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: 40), // Extra space for keyboard visibility
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _login() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    try {
+      final authResponse = await _authRepository.login(email, password);
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
+
+      // Navigate to the Upload Photo Screen on successful login
+      context.go(RouteConstants.uploadRoute);
+    } catch (e) {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
+
+      // Show error message with specific wrong password message
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Login Failed'),
+            content: Text('Wrong email or password. Please try again.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }

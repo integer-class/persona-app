@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'history_screen.dart'; // Import the History Screen
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -76,10 +77,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 18),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HistoryScreen()),
-                  );
+                  context.go(RouteConstants.historyRoute);
                 },
               ),
               const SizedBox(height: 10),

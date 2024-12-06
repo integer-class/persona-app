@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart'; // Import the AuthService
+import '../classify/upload_photo_screen.dart'; // Import the upload photo screen
+import '../../data/repositories/auth_repository.dart';
+import '../../data/datasource/remote/auth_remote_datasource.dart';
+import '../../data/datasource/local/auth_local_datasource.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -11,6 +14,10 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+  final AuthRepository _authRepository = AuthRepository(
+    AuthRemoteDataSource(),
+    AuthLocalDatasource(),
+  );
   bool _isLoading = false; // Loading state for sign-up process
 
   @override
@@ -96,9 +103,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                 // Sign Up button
                 ElevatedButton(
-                  onPressed: () {
-
-                  },
+                  onPressed: _isLoading ? null : _signup, // Disable button while loading
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -154,6 +159,45 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
     );
+  }
+
+  void _signup() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    final fullName = _fullNameController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (password != confirmPassword) {
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorDialog('Passwords do not match.');
+      return;
+    }
+
+    try {
+      final authResponse = await _authRepository.signup(fullName, email, password);
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
+
+      // Navigate to the Upload Photo Screen on successful signup
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => UploadPhotoScreen()),
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
+
+      // Show error message
+      _showErrorDialog('An error occurred while signing up. Please try again.');
+    }
   }
 
   void _showErrorDialog(String message) {

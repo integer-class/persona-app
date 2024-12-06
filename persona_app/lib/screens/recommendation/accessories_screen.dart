@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
 
 void main() {
   runApp(MyApp());
@@ -7,21 +9,23 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Product Recommendations',
       theme: ThemeData.dark(),
-      home: accessoriesscreen(),
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
+      routeInformationProvider: router.routeInformationProvider,
     );
   }
 }
 
-class accessoriesscreen extends StatefulWidget {
+class AccessoriesScreen extends StatefulWidget {
   @override
-  _accessoriesscreenState createState() => _accessoriesscreenState();
+  _AccessoriesScreenState createState() => _AccessoriesScreenState();
 }
 
-class _accessoriesscreenState extends State<accessoriesscreen> {
+class _AccessoriesScreenState extends State<AccessoriesScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0; // To track the current page
   int? _selectedProductIndex; // To track the saved product index
@@ -59,6 +63,8 @@ class _accessoriesscreenState extends State<accessoriesscreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Saved: ${product['title']}')),
       );
+
+      context.go(RouteConstants.editRoute);
     }
   }
 
@@ -127,38 +133,37 @@ class _accessoriesscreenState extends State<accessoriesscreen> {
                             const SizedBox(height: 24),
 
                             // Save Selection Button
-                           ElevatedButton(
-  onPressed: () {
-    setState(() {
-      _selectedProductIndex = index;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${_products[index]['title']} selected!'),
-      ),
-    );
-  },
-  child: Text(
-    _selectedProductIndex == index
-        ? 'Selected'
-        : 'Select this Recommendation',
-    style: TextStyle(color: Colors.white), 
-  ),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: _selectedProductIndex == index
-        ? Colors.green
-        : Colors.grey.shade800,
-    padding: const EdgeInsets.symmetric(
-      horizontal: 30,
-      vertical: 12,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    elevation: 4,
-  ),
-),
-
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _selectedProductIndex = index;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('${_products[index]['title']} selected!'),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                _selectedProductIndex == index
+                                    ? 'Selected'
+                                    : 'Select this Recommendation',
+                                style: TextStyle(color: Colors.white), 
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _selectedProductIndex == index
+                                    ? Colors.green
+                                    : Colors.grey.shade800,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 30,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                              ),
+                            ),
                           ],
                         ),
                       ),

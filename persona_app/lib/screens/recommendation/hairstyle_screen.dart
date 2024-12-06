@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'edit_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
 
 void main() {
   runApp(MyApp());
@@ -7,21 +10,24 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Product Recommendations',
       theme: ThemeData.dark(),
-      home: hairstylescreen(),
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
+      routeInformationProvider: router.routeInformationProvider,
+
     );
   }
 }
 
-class hairstylescreen extends StatefulWidget {
+class HairstyleScreen extends StatefulWidget {
   @override
   _hairstylescreenState createState() => _hairstylescreenState();
 }
 
-class _hairstylescreenState extends State<hairstylescreen> {
+class _hairstylescreenState extends State<HairstyleScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0; // To track the current page
   int? _selectedProductIndex; // To track the saved product index
@@ -49,18 +55,22 @@ class _hairstylescreenState extends State<hairstylescreen> {
     },
   ];
 
-  void _onSave() {
-    if (_selectedProductIndex == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a recommendation to save!')),
-      );
-    } else {
-      final product = _products[_selectedProductIndex!];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Saved: ${product['title']}')),
-      );
-    }
+void _onSave() {
+  if (_selectedProductIndex == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Please select a recommendation to save!')),
+    );
+  } else {
+    final product = _products[_selectedProductIndex!];
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Saved: ${product['title']}')),
+    );
+
+    context.go(RouteConstants.editRoute, extra: {
+      'product': product,
+    });
   }
+}
 
   @override
   void dispose() {

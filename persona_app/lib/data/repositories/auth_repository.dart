@@ -1,5 +1,5 @@
-import '../datasource/auth_remote_datasource.dart';
-import '../datasource/auth_local_datasource.dart';
+import '../datasource/remote/auth_remote_datasource.dart';
+import '../datasource/local/auth_local_datasource.dart';
 import '../models/auth_model.dart';
 
 class AuthRepository {

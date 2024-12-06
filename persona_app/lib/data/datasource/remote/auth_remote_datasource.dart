@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/auth_model.dart';
-import '../../constant/variables.dart';
+import '../../models/auth_model.dart';
+import '../../../constant/variables.dart';
 
 class AuthRemoteDataSource {
   Future<AuthResponseModel> login(String email, String password) async {

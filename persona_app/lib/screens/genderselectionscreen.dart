@@ -72,34 +72,37 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
               ],
             ),
             SizedBox(height: 60),
+            
             ElevatedButton(
-              onPressed: selectedGender.isEmpty
-                  ? null
-                  : () {
-                      if (selectedFile != null) {
-                        Navigator.pushNamed(
-                          context,
-                          '/edit',
-                          arguments: {
-                            'file': selectedFile,
-                            'gender': selectedGender,
-                          },
-                        );
-                      } else {
-                        print('File is null. Cannot navigate to /edit.');
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectedGender.isEmpty
-                    ? Colors.grey
-                    : Colors.blueAccent[100],
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: Text('Continue'),
-            ),
+  onPressed: selectedGender.isEmpty
+      ? null
+      : () {
+          if (selectedFile != null) {
+            Navigator.pushNamed(
+              context,
+              '/edit',
+              arguments: {
+                'file': selectedFile,
+                'gender': selectedGender,
+              },
+            );
+          } else {
+            print('File is null. Cannot navigate to /edit.');
+          }
+        },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: selectedGender.isEmpty
+        ? Colors.grey
+        : Colors.blueAccent[100],
+    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(30),
+    ),
+  ),
+  child: Text('Continue'),
+)
+
+
           ],
         ),
       ),

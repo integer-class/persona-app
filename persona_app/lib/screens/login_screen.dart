@@ -3,6 +3,8 @@ import 'signup_screen.dart'; // Import the signup screen
 import 'upload_photo_screen.dart'; // Import the upload photo screen
 import '../services/auth_service.dart'; // Import the AuthService
 
+
+
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();

@@ -3,23 +3,13 @@ import 'accessories_screen.dart';
 import 'glasses_screen.dart';
 import 'hairstyle_screen.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark(),
-      home: EditScreen(),
-    );
-  }
-}
-
 class EditScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Ambil gender dari arguments
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final String gender = args?['gender'] ?? 'Unknown';
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -27,100 +17,102 @@ class EditScreen extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            // Handle back action
+            Navigator.pop(context); // Responsif kembali ke halaman sebelumnya
           },
         ),
         title: Text('Edit'),
         centerTitle: true,
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
+          // Face Analysis Box
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Container(
-              width: double.infinity,
-              child: Image.asset(
-                'assets/images/jessica.png', // Replace with your image path
+              padding: EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey[700]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Face Analysis",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Our system detects your face is "Oval".', // Replace with dynamic data
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
+          // Image Section
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  'assets/images/jessica.png', // Replace with your image path
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          // Navigation Buttons
           Container(
-            color: Colors.black,
             padding: EdgeInsets.symmetric(vertical: 20),
+            color: Colors.black,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 // Hair Style Button
-                GestureDetector(
+                NavigationButton(
+                  imagePath: 'assets/images/hairstyle.png',
+                  label: 'Hair Styles',
                   onTap: () {
-                    // Navigate to Hairstyle Screen
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => hairstylescreen()),
                     );
                   },
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/hairstyle.png', 
-                        width: 40,
-                        height: 40,
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Hair Styles',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
                 ),
                 // Glasses Button
-                GestureDetector(
+                NavigationButton(
+                  imagePath: 'assets/images/glasses.png',
+                  label: 'Glasses',
                   onTap: () {
-                    // Navigate to Glasses Screen
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => glassesscreen()),
                     );
                   },
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/glasses.png', // Icon for glasses
-                        width: 40,
-                        height: 40,
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Glasses',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
                 ),
-                // Accessory Button
-                GestureDetector(
-                  onTap: () {
-                    // Navigate to Accessory Screen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => accessoriesscreen()),
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/accessorry.png', // Icon for accessories
-                        width: 40,
-                        height: 40,
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Accessory',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
+                // Accessory Button (only if gender is Female)
+                if (gender == 'Female')
+                  NavigationButton(
+                    imagePath: 'assets/images/accessorry.png',
+                    label: 'Accessory',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => accessoriesscreen()),
+                      );
+                    },
                   ),
-                ),
               ],
             ),
           ),
@@ -130,104 +122,35 @@ class EditScreen extends StatelessWidget {
   }
 }
 
-// import 'package:flutter/material.dart';
+class NavigationButton extends StatelessWidget {
+  final String imagePath;
+  final String label;
+  final VoidCallback onTap;
 
-// void main() {
-//   runApp(MyApp());
-// }
+  const NavigationButton({
+    required this.imagePath,
+    required this.label,
+    required this.onTap,
+  });
 
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       theme: ThemeData.dark(),
-//       home: EditScreen(),
-//     );
-//   }
-// }
-
-// class EditScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.black,
-//       appBar: AppBar(
-//         backgroundColor: Colors.black,
-//         leading: IconButton(
-//           icon: Icon(Icons.arrow_back),
-//           onPressed: () {
-//             // Handle back action
-//           },
-//         ),
-//         title: Text('Edit'),
-//         centerTitle: true,
-//       ),
-//       body: Column(
-//         children: [
-//           Expanded(
-//             child: Container(
-//               width: double.infinity,
-//               child: Image.asset(
-//                 'assets/images/jessica.png',
-//               ),
-//             ),
-//           ),
-//           Container(
-//             color: Colors.black,
-//             padding: EdgeInsets.symmetric(vertical: 20),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               children: [
-//                 // Hair Style Button
-//                 Column(
-//                   children: [
-//                     Image.asset(
-//                       'assets/images/hairstyle.png', // Icon hair style dari assets
-//                       width: 40,
-//                       height: 40,
-//                     ),
-//                     SizedBox(height: 10),
-//                     Text(
-//                       'Hair Styles',
-//                       style: TextStyle(color: Colors.white),
-//                     ),
-//                   ],
-//                 ),
-//                 // Glasses Button
-//                 Column(
-//                   children: [
-//                     Image.asset(
-//                       'assets/images/glasses.png', // Icon glasses dari assets
-//                       width: 40,
-//                       height: 40,
-//                     ),
-//                     SizedBox(height: 10),
-//                     Text(
-//                       'Glasses',
-//                       style: TextStyle(color: Colors.white),
-//                     ),
-//                   ],
-//                 ),
-//                 // Accessory Button
-//                 Column(
-//                   children: [
-//                     Image.asset(
-//                       'assets/images/accessorry.png', // Icon accessory dari assets
-//                       width: 40,
-//                       height: 40,
-//                     ),
-//                     SizedBox(height: 10),
-//                     Text(
-//                       'Accessory',
-//                       style: TextStyle(color: Colors.white),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Image.asset(
+            imagePath,
+            width: 50,
+            height: 50,
+          ),
+          SizedBox(height: 10),
+          Text(
+            label,
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}

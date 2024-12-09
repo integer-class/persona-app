@@ -5,7 +5,7 @@ import 'package:persona_app/data/repositories/auth_repository.dart';
 import 'package:go_router/go_router.dart';
 import '../../router/app_router.dart';
 import 'signup_screen.dart'; // Import the signup screen
-import '../classify/upload_photo_screen.dart'; // Import the upload photo screen
+import '../home/upload_photo_screen.dart'; // Import the upload photo screen
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -14,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false; // State for Remember Me toggle
-  final TextEditingController _emailController = TextEditingController(); // Email input controller
+  final TextEditingController _usernameController = TextEditingController(); // Username input controller
   final TextEditingController _passwordController = TextEditingController(); // Password input controller
   final AuthRepository _authRepository = AuthRepository(
     AuthRemoteDataSource(),
@@ -58,11 +58,11 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 30), // Space between title and fields
 
-              // Email input field
+              // Username input field
               TextField(
-                controller: _emailController,
+                controller: _usernameController,
                 decoration: InputDecoration(
-                  hintText: 'Insert Email',
+                  hintText: 'Insert Username',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -169,11 +169,11 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true; // Start loading
     });
 
-    final email = _emailController.text;
+    final username = _usernameController.text;
     final password = _passwordController.text;
 
     try {
-      final authResponse = await _authRepository.login(email, password);
+      final authResponse = await _authRepository.login(username, password);
       setState(() {
         _isLoading = false; // Stop loading
       });
@@ -184,14 +184,14 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = false; // Stop loading
       });
-
       // Show error message with specific wrong password message
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: Text('Login Failed'),
-            content: Text('Wrong email or password. Please try again.'),
+            content: Text(e.toString()),
+            // content: Text('Wrong username or password. Please try again.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),

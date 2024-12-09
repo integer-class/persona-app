@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../classify/upload_photo_screen.dart'; // Import the upload photo screen
+import '../home/upload_photo_screen.dart'; // Import the upload photo screen
 import '../../data/repositories/auth_repository.dart';
 import '../../data/datasource/remote/auth_remote_datasource.dart';
 import '../../data/datasource/local/auth_local_datasource.dart';
+import '../../router/app_router.dart'; // Import the app router
+import 'package:go_router/go_router.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -10,7 +12,7 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -59,11 +61,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Full Name input field
+                // Username input field
                 TextField(
-                  controller: _fullNameController,
+                  controller: _usernameController,
                   decoration: InputDecoration(
-                    hintText: 'Full Name',
+                    hintText: 'Username',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -127,7 +129,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Login prompt
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pop();
+                    context.go(RouteConstants.loginRoute); // Navigate to login screen
                   },
                   child: Text.rich(
                     TextSpan(
@@ -166,7 +168,7 @@ class _SignupScreenState extends State<SignupScreen> {
       _isLoading = true; // Start loading
     });
 
-    final fullName = _fullNameController.text;
+    final username = _usernameController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
@@ -180,16 +182,13 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     try {
-      final authResponse = await _authRepository.signup(fullName, email, password);
+      final authResponse = await _authRepository.signup(username, email, password, confirmPassword);
       setState(() {
         _isLoading = false; // Stop loading
       });
 
       // Navigate to the Upload Photo Screen on successful signup
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => UploadPhotoScreen()),
-      );
+      context.go(RouteConstants.uploadRoute);
     } catch (e) {
       setState(() {
         _isLoading = false; // Stop loading

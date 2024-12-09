@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
+import 'package:persona_app/data/models/auth_model.dart';
 import '../../router/app_router.dart';
+import 'package:persona_app/data/datasource/remote/auth_remote_datasource.dart';
+import 'package:persona_app/data/datasource/local/auth_local_datasource.dart';
+import 'package:persona_app/data/repositories/auth_repository.dart';
 
 class UploadPhotoScreen extends StatefulWidget {
   const UploadPhotoScreen({Key? key}) : super(key: key);
@@ -13,6 +17,71 @@ class UploadPhotoScreen extends StatefulWidget {
 
 class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   File? _selectedImage;
+  String username = "Guest";
+  bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  // Metode untuk menginisialisasi data
+  Future<void> _initializeData() async {
+    await _checkAuthStatus(); // Check auth status dulu
+    await _loadUsername(); // Kemudian load username
+  }
+
+  Future<void> _loadUsername() async {
+    try {
+      final authRepository = AuthRepository(
+        AuthRemoteDataSource(),
+        AuthLocalDatasource(),
+      );
+      final authData = await authRepository.getAuthData();
+
+      // Safely access nested properties with null check
+      setState(() {
+        if (authData?.data?.user?.username != null) {
+          username = authData!.data!.user!.username!;
+        } else {
+          username = "Guest";
+        }
+      });
+    } catch (e) {
+      setState(() {
+        username = "Guest";
+      });
+      print('Error loading username: $e');
+    }
+  }
+
+  Future<void> _checkAuthStatus() async {
+    try {
+      final authRepository = AuthRepository(
+        AuthRemoteDataSource(),
+        AuthLocalDatasource(),
+      );
+      final isAuth = await authRepository.isAuth();
+      setState(() {
+        isLoggedIn = isAuth;
+      });
+    } catch (e) {
+      setState(() {
+        isLoggedIn = false;
+      });
+      print("Error checking auth status: $e");
+    }
+  }
+
+void _handleProfileTap() {
+  // Langsung arahkan ke login jika belum login
+  if (!isLoggedIn) {
+    context.go(RouteConstants.loginRoute);
+    return;
+  }
+  context.go(RouteConstants.profileRoute);
+}
 
   // Function to pick image from gallery
   Future<void> _pickImageFromGallery() async {
@@ -45,10 +114,6 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
       RouteConstants.genderSelectionRoute,
       extra: {'file': image},
     );
-  }
-
-  void _navigateToLoginScreen() {
-    context.go(RouteConstants.loginRoute); // Navigate to LoginScreen
   }
 
   // Function to show dialog for image source selection
@@ -102,18 +167,19 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: _navigateToLoginScreen,
+                      onTap: _handleProfileTap,
                       child: const CircleAvatar(
                         radius: 20,
-                        backgroundImage: AssetImage('assets/images/profile.png'),
+                        backgroundImage:
+                            AssetImage('assets/images/profile.png'),
                       ),
                     ),
                     const SizedBox(width: 10),
                     GestureDetector(
-                      onTap: _navigateToLoginScreen,
-                      child: const Text(
-                        "Hello, Guest!",
-                        style: TextStyle(
+                      onTap: _handleProfileTap,
+                      child: Text(
+                        "Hello, $username!",
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -159,9 +225,11 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
               const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
-                  onPressed: _showImageSourceDialog, // Open dialog for image source
+                  onPressed:
+                      _showImageSourceDialog, // Open dialog for image source
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
                     backgroundColor: const Color(0xFF92A5FF),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:persona_app/screens/editscreen.dart';
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart'; 
 
 void main() {
   runApp(MyApp());
@@ -8,67 +9,64 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Product Recommendations',
       theme: ThemeData.dark(),
-      home: hairstylescreen(),
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
+      routeInformationProvider: router.routeInformationProvider,
     );
   }
 }
 
-class hairstylescreen extends StatefulWidget {
+class AccessoriesScreen extends StatefulWidget {
   @override
-  _hairstylescreenState createState() => _hairstylescreenState();
+  _AccessoriesScreenState createState() => _AccessoriesScreenState();
 }
 
-class _hairstylescreenState extends State<hairstylescreen> {
+class _AccessoriesScreenState extends State<AccessoriesScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0; // To track the current page
   int? _selectedProductIndex; // To track the saved product index
   final List<Map<String, String>> _products = [
     {
       'imageUrl':
-          'https://s2-ug.ap4r.com/image-aigc-article/seoPic/origin/1bb02b26836667050e723b236b9ef3e10bd1daed.jpg',
-      'title': 'French Crop',
+          'https://clubmagichour.com/cdn/shop/files/AlignedinHarmonyEarrings.png?v=1716918974',
+      'title': ' Long Drop Earrings',
       'description':
-          'The French crop is a shorter hairstyle marked by a taper fade or undercut with longer fringe on top. This look gives you the top volume while avoiding any side bulk that could add a rounder appearance.',
+          'Long drop earrings are a type of jewelry that features a hanging design, typically extending downward from the earlobe. They come in a variety of styles, from elegant and simple to ornate and intricate. Long drop earrings often feature one or multiple decorative elements such as gemstones, crystals, beads, or metalwork that create a striking visual effect ',
     },
     {
       'imageUrl':
-          'https://images.squarespace-cdn.com/content/v1/5702abebd210b8e9fd0df564/252c3f25-e88c-4c1a-9996-fe44d77bb971/Swanky-Malone-High-Skin-Fade.jpg',
-      'title': 'High Skin Fade',
+          'https://kamaria.com/cdn/shop/products/double-slider-lariat-necklace-gold-lifestyle-1_5000x.jpg?v=1601482418',
+      'title': 'Lariat Necklaces',
       'description':
-          'The high skin fade is the more modern, neat version of the French crop. It features super-short sides with longer strands on the side, creating a dramatic contrast between the two.',
+          'Lariat necklaces are a versatile and elegant jewelry piece known for their unique design that helps create a flattering oval or elongated look. These necklaces typically consist of a long, flexible chain or cord that loops around the neck, with the ends hanging down loosely. ',
     },
     {
       'imageUrl':
-          'https://cdn.shopify.com/s/files/1/0939/4234/files/rsz_1397a6817_large.png?v=1554229564',
-      'title': 'Side Part',
+          'https://thelittlecatholic.com/cdn/shop/products/F3321728-571E-4BAE-9023-E684A98D8946.jpg?v=1699378968',
+      'title': 'Chunky Necklaces',
       'description':
-          'The side part is a simple, close-clipped cut marked by a dramatic quiff contrasted by a shorter cut on the other side of the part. The contrast between short and long creates the illusion of more volume.',
+          'Chunky necklaces are bold, statement-making jewelry pieces that feature thick, large links or bold elements. They are designed to stand out and draw attention, often serving as the centerpiece of an outfit. The key characteristic of chunky necklaces is their size—these necklaces typically feature oversized beads, links, or pendants made from a variety of materials, such as metal, resin, wood, or stones',
     },
   ];
 
-void _onSave() {
-  if (_selectedProductIndex == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please select a recommendation to save!')),
-    );
-  } else {
-    final product = _products[_selectedProductIndex!];
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Saved: ${product['title']}')),
-    );
+  void _onSave() {
+    if (_selectedProductIndex == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a recommendation to save!')),
+      );
+    } else {
+      final product = _products[_selectedProductIndex!];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Saved: ${product['title']}')),
+      );
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditScreen(), 
-      ),
-    );
+      context.go(RouteConstants.editRoute);
+    }
   }
-}
 
   @override
   void dispose() {
@@ -135,38 +133,37 @@ void _onSave() {
                             const SizedBox(height: 24),
 
                             // Save Selection Button
-                           ElevatedButton(
-  onPressed: () {
-    setState(() {
-      _selectedProductIndex = index;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${_products[index]['title']} selected!'),
-      ),
-    );
-  },
-  child: Text(
-    _selectedProductIndex == index
-        ? 'Selected'
-        : 'Select this Recommendation',
-    style: TextStyle(color: Colors.white), 
-  ),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: _selectedProductIndex == index
-        ? Colors.green
-        : Colors.grey.shade800,
-    padding: const EdgeInsets.symmetric(
-      horizontal: 30,
-      vertical: 12,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    elevation: 4,
-  ),
-),
-
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _selectedProductIndex = index;
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('${_products[index]['title']} selected!'),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                _selectedProductIndex == index
+                                    ? 'Selected'
+                                    : 'Select this Recommendation',
+                                style: TextStyle(color: Colors.white), 
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _selectedProductIndex == index
+                                    ? Colors.green
+                                    : Colors.grey.shade800,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 30,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                              ),
+                            ),
                           ],
                         ),
                       ),

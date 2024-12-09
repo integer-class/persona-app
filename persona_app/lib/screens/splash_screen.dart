@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'onboarding.dart'; // Import the onboarding screen
+import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Delay for 2 seconds before navigating to the OnboardingScreen
     Future.delayed(Duration(seconds: 2), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => OnboardingScreen()),
-      );
+      context.go(RouteConstants.onboardingRoute);
     });
 
     return Scaffold(

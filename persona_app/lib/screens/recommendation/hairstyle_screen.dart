@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:persona_app/screens/editscreen.dart';
+import 'edit_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
 
 void main() {
   runApp(MyApp());
@@ -8,49 +10,52 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Glasses Recommendations',
+      title: 'Product Recommendations',
       theme: ThemeData.dark(),
-      home: glassesscreen(),
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
+      routeInformationProvider: router.routeInformationProvider,
+
     );
   }
 }
 
-class glassesscreen extends StatefulWidget {
+class HairstyleScreen extends StatefulWidget {
   @override
-  _glassesscreenState createState() => _glassesscreenState();
+  _hairstylescreenState createState() => _hairstylescreenState();
 }
 
-class _glassesscreenState extends State<glassesscreen> {
+class _hairstylescreenState extends State<HairstyleScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0; // To track the current page
   int? _selectedProductIndex; // To track the saved product index
   final List<Map<String, String>> _products = [
     {
       'imageUrl':
-          'https://www.giantvintage.com/cdn/shop/products/GIN_smokeclear2_W.jpeg?v=1699509023&width=1200',
-      'title': 'Cat-eye Glasses',
+          'https://s2-ug.ap4r.com/image-aigc-article/seoPic/origin/1bb02b26836667050e723b236b9ef3e10bd1daed.jpg',
+      'title': 'French Crop',
       'description':
-          'The epitome of understated glam, cat-eye glasses have upper corners (the ones nearest your temples) with an upswept shape, almost as though they’re implying thick eyelashes. Their distinctive, curvy browline has led them to be characterized as a feminine glasses style, but rest assured, anyone can wear cat-eyes to great effect. ',
+          'The French crop is a shorter hairstyle marked by a taper fade or undercut with longer fringe on top. This look gives you the top volume while avoiding any side bulk that could add a rounder appearance.',
     },
     {
       'imageUrl':
-          'https://res.glassesshop.com/categories/63154c663fe9c.jpg',
-      'title': 'Rectangle Glasses',
+          'https://images.squarespace-cdn.com/content/v1/5702abebd210b8e9fd0df564/252c3f25-e88c-4c1a-9996-fe44d77bb971/Swanky-Malone-High-Skin-Fade.jpg',
+      'title': 'High Skin Fade',
       'description':
-          'Rectangle glasses are a staple of the frame world for a reason: they’re almost universally flattering. Their lenses are wider than they are tall, with even, straight borders and rounded corners. They’re a simple, sophisticated, and reliable shape, but you can give them as much pizzazz as you like with bold colors.',
+          'The high skin fade is the more modern, neat version of the French crop. It features super-short sides with longer strands on the side, creating a dramatic contrast between the two.',
     },
     {
       'imageUrl':
-          'https://www.vintandyork.com/cdn/shop/collections/7e443cc42e0bc642828c600ffb46de3a.jpg?v=1654530896&width=2048',
-      'title': 'Oval Glasses',
+          'https://cdn.shopify.com/s/files/1/0939/4234/files/rsz_1397a6817_large.png?v=1554229564',
+      'title': 'Side Part',
       'description':
-          'A bit more wide than circular frames, and more rounded than rectangular ones, oval glasses have a smooth, chic look that can play well with sharper or more angular features. Their frames can be thick or wire-thin, making them an attractively flexible option for wearers.',
+          'The side part is a simple, close-clipped cut marked by a dramatic quiff contrasted by a shorter cut on the other side of the part. The contrast between short and long creates the illusion of more volume.',
     },
   ];
 
-  void _onSave() {
+void _onSave() {
   if (_selectedProductIndex == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Please select a recommendation to save!')),
@@ -61,16 +66,11 @@ class _glassesscreenState extends State<glassesscreen> {
       SnackBar(content: Text('Saved: ${product['title']}')),
     );
 
-    
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditScreen(), 
-      ),
-    );
+    context.go(RouteConstants.editRoute, extra: {
+      'product': product,
+    });
   }
 }
-
 
   @override
   void dispose() {

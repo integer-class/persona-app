@@ -1,8 +1,58 @@
 import 'package:flutter/material.dart';
-import 'history_screen.dart'; // Import the History Screen
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
+import '../../data/repositories/auth_repository.dart';
+import '../../data/datasource/remote/auth_remote_datasource.dart';
+import '../../data/datasource/local/auth_local_datasource.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final AuthRepository _authRepository = AuthRepository(
+    AuthRemoteDataSource(),
+    AuthLocalDatasource(),
+  );
+
+  Future<void> _handleLogout() async {
+    // Show confirmation dialog
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await _authRepository.logout();
+        if (mounted) {
+          context.go(RouteConstants.loginRoute);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to logout')),
+          );
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,17 +119,15 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 20),
               // History Section
               ListTile(
-                leading: const Icon(Icons.history, size: 30, color: Colors.black87),
+                leading:
+                    const Icon(Icons.history, size: 30, color: Colors.black87),
                 title: const Text(
                   'History',
                   style: TextStyle(fontSize: 16),
                 ),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 18),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HistoryScreen()),
-                  );
+                  context.go(RouteConstants.historyRoute);
                 },
               ),
               const SizedBox(height: 10),
@@ -95,7 +143,8 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.notifications, size: 30, color: Colors.black87),
+                leading: const Icon(Icons.notifications,
+                    size: 30, color: Colors.black87),
                 title: const Text(
                   'Notification',
                   style: TextStyle(fontSize: 16),
@@ -106,7 +155,8 @@ class ProfileScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.info, size: 30, color: Colors.black87),
+                leading:
+                    const Icon(Icons.info, size: 30, color: Colors.black87),
                 title: const Text(
                   'Information',
                   style: TextStyle(fontSize: 16),
@@ -115,6 +165,21 @@ class ProfileScreen extends StatelessWidget {
                 onTap: () {
                   // Add Information navigation or functionality here
                 },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.logout,
+                  size: 30,
+                  color: Colors.red,
+                ),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.red,
+                  ),
+                ),
+                onTap: _handleLogout,
               ),
             ],
           ),

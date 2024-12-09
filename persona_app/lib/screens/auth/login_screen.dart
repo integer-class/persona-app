@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:persona_app/data/datasource/remote/auth_remote_datasource.dart';
+import 'package:persona_app/data/datasource/local/auth_local_datasource.dart';
+import 'package:persona_app/data/repositories/auth_repository.dart';
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
 import 'signup_screen.dart'; // Import the signup screen
-import 'upload_photo_screen.dart'; // Import the upload photo screen
-import '../services/auth_service.dart'; // Import the AuthService
+import '../home/upload_photo_screen.dart'; // Import the upload photo screen
 
 
 
@@ -12,9 +16,12 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false; // State for Remember Me toggle
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService('https://your-api-url.com'); // Replace with your backend URL
+  final TextEditingController _usernameController = TextEditingController(); // Username input controller
+  final TextEditingController _passwordController = TextEditingController(); // Password input controller
+  final AuthRepository _authRepository = AuthRepository(
+    AuthRemoteDataSource(),
+    AuthLocalDatasource(),
+  ); // AuthService instance
   bool _isLoading = false; // Loading state for login process
 
   @override
@@ -53,11 +60,11 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 30), // Space between title and fields
 
-              // Email input field
+              // Username input field
               TextField(
-                controller: _emailController,
+                controller: _usernameController,
                 decoration: InputDecoration(
-                  hintText: 'Insert Email',
+                  hintText: 'Insert Username',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -126,9 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
               GestureDetector(
                 onTap: () {
                   // Navigate to the signup screen
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => SignupScreen()),
-                  );
+                  context.go(RouteConstants.signupRoute);
                 },
                 child: Text.rich(
                   TextSpan(
@@ -154,7 +159,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: 40), // Extra space for keyboard visibility
             ],
           ),
         ),
@@ -167,29 +171,29 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true; // Start loading
     });
 
-    final email = _emailController.text;
+    final username = _usernameController.text;
     final password = _passwordController.text;
 
-    final success = await _authService.login(email, password);
+    try {
+      final authResponse = await _authRepository.login(username, password);
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
 
-    setState(() {
-      _isLoading = false; // Stop loading
-    });
-
-    if (success) {
       // Navigate to the Upload Photo Screen on successful login
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => UploadPhotoScreen()),
-      );
-    } else {
+      context.go(RouteConstants.uploadRoute);
+    } catch (e) {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
       // Show error message with specific wrong password message
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: Text('Login Failed'),
-            content: Text('Wrong email or password. Please try again.'),
+            content: Text(e.toString()),
+            // content: Text('Wrong username or password. Please try again.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),

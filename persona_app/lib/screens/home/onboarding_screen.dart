@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'upload_photo_screen.dart'; // Import the upload photo screen
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
 
 class OnboardingScreen extends StatefulWidget {
   @override
@@ -111,9 +112,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: TextButton(
                     onPressed: () {
                       // Navigate directly to UploadPhotoScreen
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => UploadPhotoScreen()),
-                      );
+                      context.go(RouteConstants.uploadRoute);
                     },
                     child: Text(
                       'Skip',
@@ -137,9 +136,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         );
                       } else {
                         // Navigate directly to UploadPhotoScreen
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => UploadPhotoScreen()),
-                        );
+                        context.go(RouteConstants.uploadRoute);
                       }
                     },
                     child: Text(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:persona_app/screens/editscreen.dart';
+import 'edit_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart';
 
 void main() {
   runApp(MyApp());
@@ -8,49 +10,51 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Product Recommendations',
+      title: 'Glasses Recommendations',
       theme: ThemeData.dark(),
-      home: accessoriesscreen(),
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
+      routeInformationProvider: router.routeInformationProvider,
     );
   }
 }
 
-class accessoriesscreen extends StatefulWidget {
+class GlassesScreen extends StatefulWidget {
   @override
-  _accessoriesscreenState createState() => _accessoriesscreenState();
+  _glassesscreenState createState() => _glassesscreenState();
 }
 
-class _accessoriesscreenState extends State<accessoriesscreen> {
+class _glassesscreenState extends State<GlassesScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0; // To track the current page
   int? _selectedProductIndex; // To track the saved product index
   final List<Map<String, String>> _products = [
     {
       'imageUrl':
-          'https://clubmagichour.com/cdn/shop/files/AlignedinHarmonyEarrings.png?v=1716918974',
-      'title': ' Long Drop Earrings',
+          'https://www.giantvintage.com/cdn/shop/products/GIN_smokeclear2_W.jpeg?v=1699509023&width=1200',
+      'title': 'Cat-eye Glasses',
       'description':
-          'Long drop earrings are a type of jewelry that features a hanging design, typically extending downward from the earlobe. They come in a variety of styles, from elegant and simple to ornate and intricate. Long drop earrings often feature one or multiple decorative elements such as gemstones, crystals, beads, or metalwork that create a striking visual effect ',
+          'The epitome of understated glam, cat-eye glasses have upper corners (the ones nearest your temples) with an upswept shape, almost as though they’re implying thick eyelashes. Their distinctive, curvy browline has led them to be characterized as a feminine glasses style, but rest assured, anyone can wear cat-eyes to great effect. ',
     },
     {
       'imageUrl':
-          'https://kamaria.com/cdn/shop/products/double-slider-lariat-necklace-gold-lifestyle-1_5000x.jpg?v=1601482418',
-      'title': 'Lariat Necklaces',
+          'https://res.glassesshop.com/categories/63154c663fe9c.jpg',
+      'title': 'Rectangle Glasses',
       'description':
-          'Lariat necklaces are a versatile and elegant jewelry piece known for their unique design that helps create a flattering oval or elongated look. These necklaces typically consist of a long, flexible chain or cord that loops around the neck, with the ends hanging down loosely. ',
+          'Rectangle glasses are a staple of the frame world for a reason: they’re almost universally flattering. Their lenses are wider than they are tall, with even, straight borders and rounded corners. They’re a simple, sophisticated, and reliable shape, but you can give them as much pizzazz as you like with bold colors.',
     },
     {
       'imageUrl':
-          'https://thelittlecatholic.com/cdn/shop/products/F3321728-571E-4BAE-9023-E684A98D8946.jpg?v=1699378968',
-      'title': 'Chunky Necklaces',
+          'https://www.vintandyork.com/cdn/shop/collections/7e443cc42e0bc642828c600ffb46de3a.jpg?v=1654530896&width=2048',
+      'title': 'Oval Glasses',
       'description':
-          'Chunky necklaces are bold, statement-making jewelry pieces that feature thick, large links or bold elements. They are designed to stand out and draw attention, often serving as the centerpiece of an outfit. The key characteristic of chunky necklaces is their size—these necklaces typically feature oversized beads, links, or pendants made from a variety of materials, such as metal, resin, wood, or stones',
+          'A bit more wide than circular frames, and more rounded than rectangular ones, oval glasses have a smooth, chic look that can play well with sharper or more angular features. Their frames can be thick or wire-thin, making them an attractively flexible option for wearers.',
     },
   ];
 
-void _onSave() {
+  void _onSave() {
   if (_selectedProductIndex == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Please select a recommendation to save!')),
@@ -61,15 +65,12 @@ void _onSave() {
       SnackBar(content: Text('Saved: ${product['title']}')),
     );
 
-    
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditScreen(), 
-      ),
-    );
+    context.go(RouteConstants.editRoute, extra: {
+      'product': product,
+    });
   }
 }
+
 
   @override
   void dispose() {

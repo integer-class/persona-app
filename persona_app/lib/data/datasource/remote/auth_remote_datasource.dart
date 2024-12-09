@@ -39,30 +39,41 @@ class AuthRemoteDataSource {
 
   Future<AuthResponseModel> signup(String username, String email,
       String password, String confirm_password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/signup'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
+    try {
+      final url = Uri.parse('$baseUrl/register/');
+      print('Attempting signup with URL: $url');
+
+      final body = {
         'username': username,
         'email': email,
         'password': password,
         'confirm_password': confirm_password,
-      }),
-    );
+      };
 
-    print('Request: ${jsonEncode({
-          'username': username,
-          'email': email,
-          'password': password,
-          'confirm_password': confirm_password,
-        })}');
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      print('Request body: ${jsonEncode(body)}');
 
-    if (response.statusCode == 200) {
-      return AuthResponseModel.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to signup');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response headers: ${response.headers}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return AuthResponseModel.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception(
+            'Signup failed with status: ${response.statusCode}. Response: ${response.body}');
+      }
+    } catch (e) {
+      print('Signup error: $e');
+      rethrow;
     }
   }
 }

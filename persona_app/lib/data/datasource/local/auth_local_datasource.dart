@@ -7,7 +7,8 @@ class AuthLocalDatasource {
 
   Future<void> saveAuthData(AuthResponseModel authResponseModel) async {
     // Convert the Map<String, dynamic> to a JSON String
-    await _secureStorage.write(key: 'auth_data', value: json.encode(authResponseModel.toJson()));
+    await _secureStorage.write(
+        key: 'auth_data', value: json.encode(authResponseModel.toJson()));
   }
 
   Future<void> removeAuthData() async {
@@ -27,8 +28,16 @@ class AuthLocalDatasource {
   }
 
   Future<bool> isAuth() async {
-    //check if user is authenticated
-    final authData = await _secureStorage.read(key: 'auth_data');
-    return authData != null;
+    try {
+      final authData = await _secureStorage.read(key: 'auth_data');
+      if (authData != null) {
+        final auth = AuthResponseModel.fromJson(json.decode(authData));
+        return auth.data?.token != null; // Check if token exists
+      }
+      return false;
+    } catch (e) {
+      print('Error checking auth: $e');
+      return false;
+    }
   }
 }

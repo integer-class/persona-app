@@ -14,8 +14,10 @@ class AuthRepository {
     return authResponse;
   }
 
-  Future<AuthResponseModel> signup(String fullName, String email, String password) async {
-    final authResponse = await authRemoteDataSource.signup(fullName, email, password);
+  Future<AuthResponseModel> signup(String username, String email,
+      String password, String confirm_password) async {
+    final authResponse = await authRemoteDataSource.signup(
+        username, email, password, confirm_password);
     await authLocalDatasource.saveAuthData(authResponse);
     return authResponse;
   }

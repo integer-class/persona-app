@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../router/app_router.dart';
+import 'dart:io';
+import '../../data/models/prediction_model.dart';
 
 class EditScreen extends StatelessWidget {
   @override
@@ -8,21 +10,25 @@ class EditScreen extends StatelessWidget {
     final GoRouterState state = GoRouterState.of(context);
     final args = state.extra as Map<String, dynamic>?;
     final String gender = args?['gender'] ?? 'Unknown';
-
+    final Prediction? prediction = args?['prediction'];
+    final File? imageFile = args?['imageFile'];
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white), // Ubah warna ikon menjadi putih
+          icon: Icon(Icons.arrow_back,
+              color: Colors.white), // Ubah warna ikon menjadi putih
           onPressed: () {
-            context.pop(); // Responsif kembali ke halaman sebelumnya
+            context.go(RouteConstants
+                .uploadRoute); // Responsif kembali ke halaman sebelumnya
           },
         ),
         title: Text(
           'Edit',
-          style: TextStyle(color: Colors.white), // Ubah warna teks menjadi putih
+          style:
+              TextStyle(color: Colors.white), // Ubah warna teks menjadi putih
         ),
         centerTitle: true,
         actions: [
@@ -69,7 +75,10 @@ class EditScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Our system detects your face is "Oval".', // Replace with dynamic data
+                    prediction?.data.faceShape != null &&
+                            prediction!.data.faceShape.isNotEmpty
+                        ? 'Our system detects your face is "${prediction.data.faceShape}"'
+                        : 'Unable to detect face shape',
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 14,
@@ -85,10 +94,15 @@ class EditScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.asset(
-                  'assets/images/jessica.png', // Replace with your image path
-                  fit: BoxFit.cover,
-                ),
+                child: imageFile != null
+                    ? Image.file(
+                        imageFile,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        'assets/images/jessica.png',
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
           ),
@@ -104,7 +118,8 @@ class EditScreen extends StatelessWidget {
                   imagePath: 'assets/images/hairstyle.png',
                   label: 'Hair Styles',
                   onTap: () {
-                    context.go(RouteConstants.hairstyleRoute);
+                    context.go(RouteConstants.hairstyleRoute,
+                        extra: {'prediction': prediction});
                   },
                 ),
                 // Glasses Button
@@ -112,7 +127,8 @@ class EditScreen extends StatelessWidget {
                   imagePath: 'assets/images/glasses.png',
                   label: 'Glasses',
                   onTap: () {
-                    context.go(RouteConstants.glassesRoute);
+                    context.go(RouteConstants.glassesRoute,
+                        extra: {'prediction': prediction});
                   },
                 ),
                 // Accessory Button (only if gender is Female)
@@ -121,7 +137,8 @@ class EditScreen extends StatelessWidget {
                     imagePath: 'assets/images/accessorry.png',
                     label: 'Accessory',
                     onTap: () {
-                      context.go(RouteConstants.accessoriesRoute);
+                      context.go(RouteConstants.accessoriesRoute,
+                          extra: {'prediction': prediction});
                     },
                   ),
               ],

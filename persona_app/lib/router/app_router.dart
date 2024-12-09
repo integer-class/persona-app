@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/splash_screen.dart';
-import '../screens/classify/upload_photo_screen.dart';
+import '../screens/home/upload_photo_screen.dart';
 import '../screens/home/onboarding_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/recommendation/edit_screen.dart';
@@ -13,11 +13,27 @@ import '../screens/recommendation/accessories_screen.dart';
 import '../screens/recommendation/glasses_screen.dart';
 import '../screens/recommendation/hairstyle_screen.dart';
 import '../screens/recommendation/feedback_screen.dart';
+import '../data/datasource/remote/auth_remote_datasource.dart';
+import '../data/datasource/local/auth_local_datasource.dart';
+import '../data/repositories/auth_repository.dart';
 
 part 'route_constants.dart';
 part 'enums/root_tab.dart';
 
 bool isLoggedIn = false; // Simulasi status login
+
+Future<String?> authGuard(BuildContext context, GoRouterState state) async {
+  final authRepository = AuthRepository(
+    AuthRemoteDataSource(),
+    AuthLocalDatasource(),
+  );
+  final isAuth = await authRepository.isAuth();
+
+  if (!isAuth) {
+    return RouteConstants.loginRoute;
+  }
+  return null;
+}
 
 final GoRouter router = GoRouter(
   routes: [
@@ -25,6 +41,19 @@ final GoRouter router = GoRouter(
       name: RouteConstants.splashRoute,
       path: RouteConstants.splashRoute,
       builder: (context, state) => SplashScreen(),
+      redirect: (context, state) async {
+        final authRepository = AuthRepository(
+          AuthRemoteDataSource(),
+          AuthLocalDatasource(),
+        );
+        final isAuth = await authRepository.isAuth();
+
+        if (isAuth) {
+          isLoggedIn = true;
+          return RouteConstants.uploadRoute;
+        }
+        return null;
+      },
     ),
     GoRoute(
       name: RouteConstants.loginRoute,
@@ -59,12 +88,14 @@ final GoRouter router = GoRouter(
     GoRoute(
       name: RouteConstants.profileRoute,
       path: RouteConstants.profileRoute,
-      builder: (context, state) => isLoggedIn ? ProfileScreen() : LoginScreen(),
+      builder: (context, state) => ProfileScreen(),
+      redirect: authGuard,
     ),
     GoRoute(
       name: RouteConstants.historyRoute,
       path: RouteConstants.historyRoute,
       builder: (context, state) => HistoryScreen(),
+      redirect: authGuard,
     ),
     GoRoute(
       name: RouteConstants.accessoriesRoute,
@@ -85,6 +116,7 @@ final GoRouter router = GoRouter(
       name: RouteConstants.feedbackRoute,
       path: RouteConstants.feedbackRoute,
       builder: (context, state) => FeedbackScreen(),
+      redirect: authGuard,
     ),
   ],
 );

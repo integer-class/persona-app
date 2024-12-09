@@ -2,51 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../router/app_router.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      theme: ThemeData.dark(),
-      routerDelegate: router.routerDelegate,
-      routeInformationParser: router.routeInformationParser,
-      routeInformationProvider: router.routeInformationProvider,
-    );
-  }
-}
-
 class FeedbackScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Save'),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            context.pop();
-          },
-        ),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => EnjoyAppDialog(),
-            );
-          },
-          child: Text("Test test feedback"),
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.blue, // text color
-          ),
-        ),
-      ),
-    );
+    // Show dialog when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Prevent dismissing by tapping outside
+        barrierColor: Colors.black, // Set barrier color to black
+        builder: (context) => EnjoyAppDialog(),
+      );
+    });
+
+    return Container(
+      color: Colors.black, // Set background color to black
+    ); // Empty container since this is just for dialog
   }
 }
 
@@ -57,72 +28,101 @@ class EnjoyAppDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      backgroundColor: Colors.grey[800],
+      contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      title: Text(
+        "Enjoying this App?",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        textAlign: TextAlign.center,
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Enjoying this App?",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
             "Hi there! We'd love to know if you're having a great experience.",
-            style: TextStyle(fontSize: 14, color: Colors.white70),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 40),
+          Container(
+            width: double.infinity,
+            height: 1,
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.3),
+              border: Border(
+                right: BorderSide(
+                  color: Colors.blue.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+            ),
+          ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              GestureDetector(
+              _buildFeedbackOption(
+                context: context,
+                emoji: "😟",
+                text: "Not Really",
                 onTap: () {
                   context.pop();
                   showDialog(
                     context: context,
+                    barrierColor: Colors.black,
                     builder: (context) => NotReallyDialog(),
                   );
                 },
-                child: Column(
-                  children: [
-                    Text(
-                      "😟",
-                      style: TextStyle(fontSize: 32),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      "Not Really",
-                      style: TextStyle(color: Colors.blue, fontSize: 14),
-                    ),
-                  ],
+              ),
+              Container(
+                height: 80,
+                child: VerticalDivider(
+                  color: Colors.blue.withOpacity(0.3),
+                  thickness: 1,
                 ),
               ),
-              GestureDetector(
+              _buildFeedbackOption(
+                context: context,
+                emoji: "😊",
+                text: "Yes!",
                 onTap: () {
-                  context.pop();
+                  Navigator.pop(context);
                   showDialog(
                     context: context,
+                    barrierColor: Colors.black, // Set barrier color to black
                     builder: (context) => StarRatingDialog(),
                   );
                 },
-                child: Column(
-                  children: [
-                    Text(
-                      "😊",
-                      style: TextStyle(fontSize: 32),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      "Yes!",
-                      style: TextStyle(color: Colors.blue, fontSize: 14),
-                    ),
-                  ],
-                ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeedbackOption({
+    required BuildContext context,
+    required String emoji,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Text(
+            emoji,
+            style: TextStyle(fontSize: 40, color: Colors.blue),
+          ),
+          SizedBox(height: 8),
+          Text(
+            text,
+            style: TextStyle(
+                color: Colors.blue, fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -137,34 +137,67 @@ class NotReallyDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
+      backgroundColor: Colors.grey[800],
+      contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
       title: Text(
-        "We’re sorry you’re not having a good time with this app.",
-        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        "We're sorry you're not having a good time with this app.",
+        style: TextStyle(
+            fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
         textAlign: TextAlign.center,
       ),
       content: Text(
         "Would you like to let us know how we can improve your experience?",
-        style: TextStyle(fontSize: 14, color: Colors.white70),
+        style: TextStyle(fontSize: 16, color: Colors.white70),
         textAlign: TextAlign.center,
       ),
       actions: [
-        TextButton(
-          onPressed: () {
-            context.pop();
-            context.go(RouteConstants.feedbackRoute);
-          },
-          child: Text("Send Feedback"),
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.blue, 
+        Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Colors.blue.withOpacity(0.3), width: 1.0),
+            ),
           ),
-        ),
-        TextButton(
-          onPressed: () {
-            context.pop();
-          },
-          child: Text("Maybe Later"),
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.blue, 
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextButton(
+                onPressed: () {
+                  context.pop();
+                  showDialog(
+                    context: context,
+                    barrierColor: Colors.black, // Set barrier color to black
+                    builder: (context) => SendFeedbackDialog(),
+                  );
+                },
+                child: Text(
+                  "Send Feedback",
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+              Container(
+                height: 40,
+                child: VerticalDivider(
+                  color: Colors.blue.withOpacity(0.3),
+                  thickness: 1,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.go(
+                      RouteConstants.uploadRoute); // Go back to upload screen
+                },
+                child: Text(
+                  "Maybe Later",
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -183,9 +216,12 @@ class StarRatingDialog extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+          backgroundColor: Colors.grey[800],
+          contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           title: Text(
             "Rate this App",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             textAlign: TextAlign.center,
           ),
           content: Column(
@@ -193,20 +229,18 @@ class StarRatingDialog extends StatelessWidget {
             children: [
               Text(
                 "How many stars would you give us?",
-                style: TextStyle(fontSize: 14, color: Colors.white70),
+                style: TextStyle(fontSize: 16, color: Colors.white70),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (index) {
                   return IconButton(
                     icon: Icon(
-                      index < _selectedRating
-                          ? Icons.star
-                          : Icons.star_border,
+                      index < _selectedRating ? Icons.star : Icons.star_border,
                       color: Colors.amber,
-                      size: 32,
+                      size: 36,
                     ),
                     onPressed: () {
                       setState(() {
@@ -219,13 +253,20 @@ class StarRatingDialog extends StatelessWidget {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                context.pop();
-              },
-              child: Text("Submit"),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.blue, // text color
+            Container(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () {
+                  context.go(
+                      RouteConstants.uploadRoute); // Go back to upload screen
+                },
+                child: Text(
+                  "Submit",
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                ),
               ),
             ),
           ],
@@ -235,69 +276,120 @@ class StarRatingDialog extends StatelessWidget {
   }
 }
 
-class SendFeedbackScreen extends StatelessWidget {
+class SendFeedbackDialog extends StatelessWidget {
   final TextEditingController feedbackController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Send Feedback'),
-        centerTitle: true,
+    return AlertDialog(
+      backgroundColor: Colors.grey[800],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
       ),
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          width: MediaQuery.of(context).size.width * 0.9,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                "We’d love to hear your thoughts.",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              TextField(
-                controller: feedbackController,
-                maxLines: 5,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "Type your feedback here...",
-                  hintStyle: TextStyle(color: Colors.white54),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue), 
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[800],
+      contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      content: Container(
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              "We'd love to hear your thoughts.",
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24),
+            TextField(
+              controller: feedbackController,
+              maxLines: 5,
+              style: TextStyle(color: Colors.white, fontSize: 16),
+              decoration: InputDecoration(
+                hintText: "Type your feedback here...",
+                hintStyle: TextStyle(color: Colors.white54, fontSize: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.grey[600]!),
                 ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  final feedback = feedbackController.text;
-                  print("Feedback submitted: $feedback");
-                  context.pop();
-                },
-                child: Text("Submit Feedback"),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.blue, // text color
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.grey[600]!),
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                filled: true,
+                fillColor: Colors.grey[700],
+                contentPadding: EdgeInsets.all(16),
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: 24),
+            TextButton(
+              onPressed: () {
+                final feedback = feedbackController.text;
+                if (feedback.isNotEmpty) {
+                  showDialog(
+                    context: context,
+                    barrierColor: Colors.black,
+                    builder: (context) => ThankYouDialog(),
+                  );
+                }
+              },
+              child: Text(
+                "Submit Feedback",
+                style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class ThankYouDialog extends StatelessWidget {
+  @override 
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.grey[800],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      title: Text(
+        "Thank You!",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white
+        ),
+        textAlign: TextAlign.center,
+      ),
+      content: Text(
+        "Your feedback has been submitted successfully.",
+        style: TextStyle(fontSize: 16, color: Colors.white70),
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            context.go(RouteConstants.uploadRoute); // Go back to upload screen
+          },
+          child: Text(
+            "OK",
+            style: TextStyle(
+              color: Colors.blue,
+              fontSize: 16,
+              fontWeight: FontWeight.w500
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

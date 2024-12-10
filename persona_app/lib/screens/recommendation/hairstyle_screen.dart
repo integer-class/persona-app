@@ -17,7 +17,6 @@ class MyApp extends StatelessWidget {
       routerDelegate: router.routerDelegate,
       routeInformationParser: router.routeInformationParser,
       routeInformationProvider: router.routeInformationProvider,
-
     );
   }
 }
@@ -55,22 +54,16 @@ class _hairstylescreenState extends State<HairstyleScreen> {
     },
   ];
 
-void _onSave() {
-  if (_selectedProductIndex == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please select a recommendation to save!')),
-    );
-  } else {
-    final product = _products[_selectedProductIndex!];
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Saved: ${product['title']}')),
-    );
-
-    context.go(RouteConstants.editRoute, extra: {
-      'product': product,
-    });
+  void _onSave() {
+    if (_selectedProductIndex == null) {
+      return;
+    } else {
+      final product = _products[_selectedProductIndex!];
+      context.go(RouteConstants.editRoute, extra: {
+        'product': product,
+      });
+    }
   }
-}
 
   @override
   void dispose() {
@@ -81,169 +74,210 @@ void _onSave() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade900, 
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemCount: _products.length,
-                itemBuilder: (context, index) {
-                  final product = _products[index];
-                  return Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      // Product Image
-                      Image.network(
-                        product['imageUrl']!,
-                        width: double.infinity,
-                        height: 400,
-                        fit: BoxFit.cover,
-                      ),
-
-                      // Padding around product details
-                      Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Product Title
-                            Text(
-                              product['title']!,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white, // White text for contrast
-                              ),
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            // Product Description
-                            Text(
-                              product['description']!,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[400], // Lighter text
-                              ),
-                            ),
-
-                            const SizedBox(height: 24),
-
-                            // Save Selection Button
-                           ElevatedButton(
-  onPressed: () {
-    setState(() {
-      _selectedProductIndex = index;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${_products[index]['title']} selected!'),
+      backgroundColor: Colors.grey.shade900,
+      appBar: AppBar(
+        backgroundColor: Colors.grey.shade900,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => context.go(RouteConstants.editRoute),
+        ),
+        title: const Text(
+          'Recommendation',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: _onSave,
+            child: const Text(
+              'Save',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
-    );
-  },
-  child: Text(
-    _selectedProductIndex == index
-        ? 'Selected'
-        : 'Select this Recommendation',
-    style: TextStyle(color: Colors.white), 
-  ),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: _selectedProductIndex == index
-        ? Colors.green
-        : Colors.grey.shade800,
-    padding: const EdgeInsets.symmetric(
-      horizontal: 30,
-      vertical: 12,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    elevation: 4,
-  ),
-),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                    },
+                    itemCount: _products.length,
+                    itemBuilder: (context, index) {
+                      final product = _products[index];
+                      return Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          // Product Image Container
+                          Container(
+                            margin: const EdgeInsets.all(16.0),
+                            height: 400,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.grey.shade800,
+                                width: 2,
+                              ),
+                            ),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.network(
+                                    product['imageUrl']!,
+                                    width: double.infinity,
+                                    height: 400,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                // Navigation Buttons inside image
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  top: 200,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: _currentIndex > 0
+                                              ? () {
+                                                  _pageController.previousPage(
+                                                    duration: const Duration(
+                                                        milliseconds: 300),
+                                                    curve: Curves.easeInOut,
+                                                  );
+                                                }
+                                              : null,
+                                          child: const Icon(Icons.arrow_back,
+                                              size: 20, color: Colors.white),
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.all(8),
+                                            shape: const CircleBorder(),
+                                            backgroundColor:
+                                                Colors.grey.shade800,
+                                            minimumSize: const Size(40, 40),
+                                            maximumSize: const Size(40, 40),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: _currentIndex <
+                                                  _products.length - 1
+                                              ? () {
+                                                  _pageController.nextPage(
+                                                    duration: const Duration(
+                                                        milliseconds: 300),
+                                                    curve: Curves.easeInOut,
+                                                  );
+                                                }
+                                              : null,
+                                          child: const Icon(Icons.arrow_forward,
+                                              size: 20, color: Colors.white),
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.all(8),
+                                            shape: const CircleBorder(),
+                                            backgroundColor:
+                                                Colors.grey.shade800,
+                                            minimumSize: const Size(40, 40),
+                                            maximumSize: const Size(40, 40),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
 
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                          // Padding around product details
+                          Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Product Title
+                                Text(
+                                  product['title']!,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                // Product Description
+                                Text(
+                                  product['description']!,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[400],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
 
-            // Navigation Buttons (Back & Next)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Back Button (icon only)
-                  ElevatedButton.icon(
-                    onPressed: _currentIndex > 0
-                        ? () {
-                            _pageController.previousPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          }
-                        : null,
-                    icon: const Icon(Icons.arrow_back, size: 30, color: Colors.white),
-                    label: const SizedBox.shrink(), // Remove text
+            // Selection Button - Positioned at bottom center with consistent width
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 32,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        if (_selectedProductIndex == _currentIndex) {
+                          _selectedProductIndex = null;
+                        } else {
+                          _selectedProductIndex = _currentIndex;
+                        }
+                      });
+                    },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(12),
+                      backgroundColor: _selectedProductIndex == _currentIndex
+                          ? Colors.green
+                          : Colors.grey.shade800,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      backgroundColor: Colors.grey[600],
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-
-                  // Save Button
-                  ElevatedButton(
-                    onPressed: _onSave,
-                    child: const Text('Save'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
                       elevation: 4,
                     ),
-                  ),
-
-                  // Next Button (icon only)
-                  ElevatedButton.icon(
-                    onPressed: _currentIndex < _products.length - 1
-                        ? () {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          }
-                        : null,
-                    icon: const Icon(Icons.arrow_forward, size: 30, color: Colors.white),
-                    label: const SizedBox.shrink(), // Remove text
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    child: Text(
+                      _selectedProductIndex == _currentIndex
+                          ? 'Selected'
+                          : 'Select this recommendation',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      backgroundColor: Colors.grey.shade700,
-                      foregroundColor: Colors.white,
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ],

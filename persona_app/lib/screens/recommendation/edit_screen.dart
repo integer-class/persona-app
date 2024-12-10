@@ -4,11 +4,48 @@ import '../../router/app_router.dart';
 import 'dart:io';
 import '../../data/models/prediction_model.dart';
 
-class EditScreen extends StatelessWidget {
+class EditScreen extends StatefulWidget {
+  @override
+  _EditScreenState createState() => _EditScreenState();
+}
+
+class _EditScreenState extends State<EditScreen> {
+  Accessory? selectedHairstyle;
+  Accessory? selectedGlasses;
+  Accessory? selectedEarrings;
+
   @override
   Widget build(BuildContext context) {
     final GoRouterState state = GoRouterState.of(context);
     final args = state.extra as Map<String, dynamic>?;
+
+    // Jika ada selectedItem, tambahkan ke recommendation yang sesuai
+    if (args?['selectedItem'] != null) {
+      final selectedItem = args!['selectedItem'] as Accessory;
+      final prediction = args['prediction'] as Prediction;
+
+      // Update selected items when returning from recommendation screens
+      if (args?['selectedItem'] != null) {
+        final selectedItem = args!['selectedItem'] as Accessory;
+
+        if (selectedItem.category == Category.GLASSES) {
+          selectedGlasses = selectedItem;
+        } else if (selectedItem.category == Category.EARRINGS) {
+          selectedEarrings = selectedItem;
+        } else {
+          selectedHairstyle = selectedItem;
+        }
+      }
+    }
+
+    // Preserve existing selections when navigating
+    if (args?['keepSelections'] != null) {
+      final Map<String, Accessory> selections = args!['keepSelections'];
+      selectedHairstyle = selections['hairstyle'] ?? selectedHairstyle;
+      selectedGlasses = selections['glasses'] ?? selectedGlasses;
+      selectedEarrings = selections['earrings'] ?? selectedEarrings;
+    }
+
     final String gender = args?['gender'] ?? 'Unknown';
     final Prediction? prediction = args?['prediction'];
     final File? imageFile = args?['imageFile'];
@@ -117,28 +154,87 @@ class EditScreen extends StatelessWidget {
                 NavigationButton(
                   imagePath: 'assets/images/hairstyle.png',
                   label: 'Hair Styles',
+                  selectedImageUrl: selectedHairstyle?.image,
                   onTap: () {
-                    context.go(RouteConstants.hairstyleRoute,
-                        extra: {'prediction': prediction});
+                    context.go(RouteConstants.hairstyleRoute, extra: {
+                      'recommendations':
+                          prediction?.data.recommendations.hairStyles,
+                      'otherOptions': prediction?.data.otherOptions.hairStyles,
+                      'title': 'Hair Style',
+                      'gender': gender,
+                      'prediction': prediction,
+                      'imageFile': imageFile,
+                      'selectedItem': selectedHairstyle,
+                      'keepSelections': {
+                        'hairstyle': selectedHairstyle,
+                        'glasses': selectedGlasses,
+                        'earrings': selectedEarrings,
+                      },
+                    });
                   },
                 ),
                 // Glasses Button
+// Glasses button
                 NavigationButton(
                   imagePath: 'assets/images/glasses.png',
                   label: 'Glasses',
+                  selectedImageUrl: selectedGlasses?.image, // Tambahkan ini
                   onTap: () {
-                    context.go(RouteConstants.glassesRoute,
-                        extra: {'prediction': prediction});
+                    final glassesRecommendations = prediction
+                        ?.data.recommendations.accessories
+                        .where((a) => a.category == Category.GLASSES)
+                        .toList();
+                    final glassesOtherOptions = prediction
+                        ?.data.otherOptions.accessories
+                        .where((a) => a.category == Category.GLASSES)
+                        .toList();
+
+                    context.go(RouteConstants.glassesRoute, extra: {
+                      'recommendations': glassesRecommendations,
+                      'otherOptions': glassesOtherOptions,
+                      'title': 'Glasses',
+                      'gender': gender,
+                      'prediction': prediction,
+                      'imageFile': imageFile,
+                      'selectedItem': selectedGlasses,
+                      'keepSelections': {
+                        'hairstyle': selectedHairstyle,
+                        'glasses': selectedGlasses,
+                        'earrings': selectedEarrings,
+                      },
+                    });
                   },
                 ),
                 // Accessory Button (only if gender is Female)
                 if (gender == 'Female')
                   NavigationButton(
                     imagePath: 'assets/images/accessorry.png',
-                    label: 'Accessory',
+                    label: 'Earrings',
+                    selectedImageUrl: selectedEarrings?.image, // Tambahkan ini
                     onTap: () {
-                      context.go(RouteConstants.accessoriesRoute,
-                          extra: {'prediction': prediction});
+                      final earringsRecommendations = prediction
+                          ?.data.recommendations.accessories
+                          .where((a) => a.category == Category.EARRINGS)
+                          .toList();
+                      final earringsOtherOptions = prediction
+                          ?.data.otherOptions.accessories
+                          .where((a) => a.category == Category.EARRINGS)
+                          .toList();
+
+                      context.go(RouteConstants.accessoriesRoute, extra: {
+                        'recommendations': earringsRecommendations,
+                        'otherOptions': earringsOtherOptions,
+                        'title': 'Earrings Recommendations',
+                        'gender': gender,
+                        'prediction': prediction,
+                        'imageFile': imageFile,
+                        'selectedItem': selectedEarrings,
+                        'keepSelections': {
+                          'hairstyle': selectedHairstyle,
+                          'glasses': selectedGlasses,
+                          'earrings': selectedEarrings,
+                        },
+                      });
                     },
                   ),
               ],
@@ -148,17 +244,22 @@ class EditScreen extends StatelessWidget {
       ),
     );
   }
+  
 }
+
+
 
 class NavigationButton extends StatelessWidget {
   final String imagePath;
   final String label;
   final VoidCallback onTap;
+  final String? selectedImageUrl;
 
   const NavigationButton({
     required this.imagePath,
     required this.label,
     required this.onTap,
+    this.selectedImageUrl,
   });
 
   @override
@@ -167,11 +268,21 @@ class NavigationButton extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Image.asset(
-            imagePath,
-            width: 50,
-            height: 50,
-          ),
+          selectedImageUrl != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: Image.network(
+                    selectedImageUrl!,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : Image.asset(
+                  imagePath,
+                  width: 50,
+                  height: 50,
+                ),
           SizedBox(height: 10),
           Text(
             label,

@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../../router/app_router.dart';
 import 'dart:io';
 import '../../data/models/prediction_model.dart';
+import '../../provider/selection_provider.dart';
+import 'package:provider/provider.dart';
 
 class EditScreen extends StatefulWidget {
   @override
@@ -10,40 +12,21 @@ class EditScreen extends StatefulWidget {
 }
 
 class _EditScreenState extends State<EditScreen> {
-  Accessory? selectedHairstyle;
-  Accessory? selectedGlasses;
-  Accessory? selectedEarrings;
-
   @override
   Widget build(BuildContext context) {
+    final selectionProvider = Provider.of<SelectionProvider>(context);
     final GoRouterState state = GoRouterState.of(context);
     final args = state.extra as Map<String, dynamic>?;
 
-    // Jika ada selectedItem, tambahkan ke recommendation yang sesuai
     if (args?['selectedItem'] != null) {
       final selectedItem = args!['selectedItem'] as Accessory;
-      final prediction = args['prediction'] as Prediction;
-
-      // Update selected items when returning from recommendation screens
-      if (args?['selectedItem'] != null) {
-        final selectedItem = args!['selectedItem'] as Accessory;
-
-        if (selectedItem.category == Category.GLASSES) {
-          selectedGlasses = selectedItem;
-        } else if (selectedItem.category == Category.EARRINGS) {
-          selectedEarrings = selectedItem;
-        } else {
-          selectedHairstyle = selectedItem;
-        }
+      if (selectedItem.category == Category.GLASSES) {
+        selectionProvider.updateSelection('glasses', selectedItem);
+      } else if (selectedItem.category == Category.EARRINGS) {
+        selectionProvider.updateSelection('earrings', selectedItem);
+      } else {
+        selectionProvider.updateSelection('hairstyle', selectedItem);
       }
-    }
-
-    // Preserve existing selections when navigating
-    if (args?['keepSelections'] != null) {
-      final Map<String, Accessory> selections = args!['keepSelections'];
-      selectedHairstyle = selections['hairstyle'] ?? selectedHairstyle;
-      selectedGlasses = selections['glasses'] ?? selectedGlasses;
-      selectedEarrings = selections['earrings'] ?? selectedEarrings;
     }
 
     final String gender = args?['gender'] ?? 'Unknown';
@@ -55,30 +38,25 @@ class _EditScreenState extends State<EditScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: Colors.white), // Ubah warna ikon menjadi putih
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            context.go(RouteConstants
-                .uploadRoute); // Responsif kembali ke halaman sebelumnya
+            context.go(RouteConstants.uploadRoute);
           },
         ),
         title: Text(
           'Edit',
-          style:
-              TextStyle(color: Colors.white), // Ubah warna teks menjadi putih
+          style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
         actions: [
-          // Ganti tombol Save menjadi teks biasa
           TextButton(
             onPressed: () {
-              // Navigasi ke halaman Feedback setelah Save diklik
               context.go(RouteConstants.feedbackRoute);
             },
             child: Text(
               'Save',
               style: TextStyle(
-                color: Colors.white, // Ubah teks menjadi putih
+                color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -154,7 +132,7 @@ class _EditScreenState extends State<EditScreen> {
                 NavigationButton(
                   imagePath: 'assets/images/hairstyle.png',
                   label: 'Hair Styles',
-                  selectedImageUrl: selectedHairstyle?.image,
+                  selectedImageUrl: selectionProvider.selectedHairstyle?.image,
                   onTap: () {
                     context.go(RouteConstants.hairstyleRoute, extra: {
                       'recommendations':
@@ -164,21 +142,15 @@ class _EditScreenState extends State<EditScreen> {
                       'gender': gender,
                       'prediction': prediction,
                       'imageFile': imageFile,
-                      'selectedItem': selectedHairstyle,
-                      'keepSelections': {
-                        'hairstyle': selectedHairstyle,
-                        'glasses': selectedGlasses,
-                        'earrings': selectedEarrings,
-                      },
+                      'selectedItem': selectionProvider.selectedHairstyle,
                     });
                   },
                 ),
                 // Glasses Button
-// Glasses button
                 NavigationButton(
                   imagePath: 'assets/images/glasses.png',
                   label: 'Glasses',
-                  selectedImageUrl: selectedGlasses?.image, // Tambahkan ini
+                  selectedImageUrl: selectionProvider.selectedGlasses?.image,
                   onTap: () {
                     final glassesRecommendations = prediction
                         ?.data.recommendations.accessories
@@ -196,12 +168,7 @@ class _EditScreenState extends State<EditScreen> {
                       'gender': gender,
                       'prediction': prediction,
                       'imageFile': imageFile,
-                      'selectedItem': selectedGlasses,
-                      'keepSelections': {
-                        'hairstyle': selectedHairstyle,
-                        'glasses': selectedGlasses,
-                        'earrings': selectedEarrings,
-                      },
+                      'selectedItem': selectionProvider.selectedGlasses,
                     });
                   },
                 ),
@@ -210,7 +177,7 @@ class _EditScreenState extends State<EditScreen> {
                   NavigationButton(
                     imagePath: 'assets/images/accessorry.png',
                     label: 'Earrings',
-                    selectedImageUrl: selectedEarrings?.image, // Tambahkan ini
+                    selectedImageUrl: selectionProvider.selectedEarrings?.image,
                     onTap: () {
                       final earringsRecommendations = prediction
                           ?.data.recommendations.accessories
@@ -228,12 +195,7 @@ class _EditScreenState extends State<EditScreen> {
                         'gender': gender,
                         'prediction': prediction,
                         'imageFile': imageFile,
-                        'selectedItem': selectedEarrings,
-                        'keepSelections': {
-                          'hairstyle': selectedHairstyle,
-                          'glasses': selectedGlasses,
-                          'earrings': selectedEarrings,
-                        },
+                        'selectedItem': selectionProvider.selectedEarrings,
                       });
                     },
                   ),
@@ -244,10 +206,7 @@ class _EditScreenState extends State<EditScreen> {
       ),
     );
   }
-  
 }
-
-
 
 class NavigationButton extends StatelessWidget {
   final String imagePath;

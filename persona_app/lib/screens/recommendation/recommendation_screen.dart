@@ -232,23 +232,32 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
     );
   }
 
-  void _onSave() {
-    if (_selectedProductIndex != null) {
-      final selectedItem = allItems[_selectedProductIndex!];
+void _onSave() {
+  if (_selectedProductIndex != null) {
+    final selectedItem = allItems[_selectedProductIndex!];
 
-      // Cast keepSelections ke Map<String, Accessory>
-      final Map<String, Accessory> selections =
-          Map<String, Accessory>.from(widget.keepSelections ?? {});
+    // Cast keepSelections ke Map<String, Accessory>
+    final Map<String, Accessory> selections =
+        Map<String, Accessory>.from(widget.keepSelections ?? {});
 
-      context.go(RouteConstants.editRoute, extra: {
-        'gender': widget.gender,
-        'prediction': widget.prediction,
-        'imageFile': widget.imageFile,
-        'selectedItem': selectedItem,
-        'keepSelections': selections,
-      });
+    // Update the selections with the new selected item
+    if (selectedItem.category == Category.GLASSES) {
+      selections['glasses'] = selectedItem;
+    } else if (selectedItem.category == Category.EARRINGS) {
+      selections['earrings'] = selectedItem;
+    } else {
+      selections['hairstyle'] = selectedItem;
     }
+
+    context.go(RouteConstants.editRoute, extra: {
+      'gender': widget.gender,
+      'prediction': widget.prediction,
+      'imageFile': widget.imageFile,
+      'selectedItem': selectedItem,
+      'keepSelections': selections,
+    });
   }
+}
 }
 
 // Simplified NavigationArrows widget

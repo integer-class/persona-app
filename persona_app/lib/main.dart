@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'router/app_router.dart';
+import 'package:provider/provider.dart';
+import 'provider/selection_provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SelectionProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

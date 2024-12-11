@@ -7,6 +7,8 @@ import '../../router/app_router.dart';
 import 'package:persona_app/data/datasource/remote/auth_remote_datasource.dart';
 import 'package:persona_app/data/datasource/local/auth_local_datasource.dart';
 import 'package:persona_app/data/repositories/auth_repository.dart';
+import 'package:provider/provider.dart';
+import '../../provider/selection_provider.dart';
 
 class UploadPhotoScreen extends StatefulWidget {
   const UploadPhotoScreen({Key? key}) : super(key: key);
@@ -74,14 +76,14 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
     }
   }
 
-void _handleProfileTap() {
-  // Langsung arahkan ke login jika belum login
-  if (!isLoggedIn) {
-    context.go(RouteConstants.loginRoute);
-    return;
+  void _handleProfileTap() {
+    // Langsung arahkan ke login jika belum login
+    if (!isLoggedIn) {
+      context.go(RouteConstants.loginRoute);
+      return;
+    }
+    context.go(RouteConstants.profileRoute);
   }
-  context.go(RouteConstants.profileRoute);
-}
 
   // Function to pick image from gallery
   Future<void> _pickImageFromGallery() async {
@@ -149,6 +151,8 @@ void _handleProfileTap() {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<SelectionProvider>(context, listen: false).resetSelections();
+
     return Scaffold(
       body: Stack(
         children: [

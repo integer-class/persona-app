@@ -53,211 +53,225 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade900,
-      appBar: AppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        context.go(RouteConstants.editRoute, extra: {
+          'gender': widget.gender,
+          'prediction': widget.prediction,
+          'imageFile': widget.imageFile,
+        });
+        return false;
+      },
+      child: Scaffold(
         backgroundColor: Colors.grey.shade900,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go(RouteConstants.editRoute, extra: {
-            'gender': widget.gender,
-            'prediction': widget.prediction,
-            'imageFile': widget.imageFile,
-          }),
-        ),
-        title: Text(widget.title, style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: _onSave,
-            child: Text('Save', style: TextStyle(color: Colors.white)),
+        appBar: AppBar(
+          backgroundColor: Colors.grey.shade900,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.go(RouteConstants.editRoute, extra: {
+              'gender': widget.gender,
+              'prediction': widget.prediction,
+              'imageFile': widget.imageFile,
+            }),
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) =>
-                        setState(() => _currentIndex = index),
-                    itemCount: allItems.length,
-                    itemBuilder: (context, index) {
-                      final item = allItems[index];
-                      return Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.all(16),
-                            height: 400,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: isRecommended(item)
-                                    ? Colors.green
-                                    : Colors.grey.shade800,
-                                width: 2,
-                              ),
-                            ),
-                            child: Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(14),
-                                  child: Image.network(
-                                    item.image,
-                                    width: double.infinity,
-                                    height: 400,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      print('Error loading image: $error');
-                                      return Container(
-                                        width: double.infinity,
-                                        height: 400,
-                                        color: Colors.grey[800],
-                                        child: Icon(Icons.error_outline,
-                                            color: Colors.white),
-                                      );
-                                    },
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Container(
-                                        width: double.infinity,
-                                        height: 400,
-                                        color: Colors.grey[800],
-                                        child: Center(
-                                            child: CircularProgressIndicator()),
-                                      );
-                                    },
-                                  ),
+          title: Text(widget.title, style: TextStyle(color: Colors.white)),
+          centerTitle: true,
+          actions: [
+            TextButton(
+              onPressed: _onSave,
+              child: Text('Save', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) =>
+                          setState(() => _currentIndex = index),
+                      itemCount: allItems.length,
+                      itemBuilder: (context, index) {
+                        final item = allItems[index];
+                        return Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.all(16),
+                              height: 400,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isRecommended(item)
+                                      ? Colors.green
+                                      : Colors.grey.shade800,
+                                  width: 2,
                                 ),
-                                if (isRecommended(item))
-                                  Positioned(
-                                    top: 16,
-                                    right: 16,
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        'Recommended',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
+                              ),
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: Image.network(
+                                      item.image,
+                                      width: double.infinity,
+                                      height: 400,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        print('Error loading image: $error');
+                                        return Container(
+                                          width: double.infinity,
+                                          height: 400,
+                                          color: Colors.grey[800],
+                                          child: Icon(Icons.error_outline,
+                                              color: Colors.white),
+                                        );
+                                      },
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return Container(
+                                          width: double.infinity,
+                                          height: 400,
+                                          color: Colors.grey[800],
+                                          child: Center(
+                                              child:
+                                                  CircularProgressIndicator()),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  if (isRecommended(item))
+                                    Positioned(
+                                      top: 16,
+                                      right: 16,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          'Recommended',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ),
+                                  // Navigation arrows
+                                  Positioned(
+                                    left: 0,
+                                    right: 0,
+                                    top: 200,
+                                    child: NavigationArrows(
+                                      currentIndex: _currentIndex,
+                                      itemCount: allItems.length,
+                                      pageController: _pageController,
+                                    ),
                                   ),
-                                // Navigation arrows
-                                Positioned(
-                                  left: 0,
-                                  right: 0,
-                                  top: 200,
-                                  child: NavigationArrows(
-                                    currentIndex: _currentIndex,
-                                    itemCount: allItems.length,
-                                    pageController: _pageController,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.name,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                            Padding(
+                              padding: EdgeInsets.all(24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.name,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 12),
-                                Text(
-                                  item.description,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[400],
+                                  SizedBox(height: 12),
+                                  Text(
+                                    item.description,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[400],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                    },
+                          ],
+                        );
+                      },
+                    ),
                   ),
+                ],
+              ),
+              // Page Indicator at bottom
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 100, // Above selection button
+                child: PageIndicator(
+                  currentIndex: _currentIndex,
+                  itemCount: allItems.length,
                 ),
-              ],
-            ),
-            // Page Indicator at bottom
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 100, // Above selection button
-              child: PageIndicator(
-                currentIndex: _currentIndex,
-                itemCount: allItems.length,
               ),
-            ),
 
-            // Selection button at bottom
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 32,
-              child: SelectionButton(
-                isSelected: _selectedProductIndex == _currentIndex,
-                onPressed: () => setState(() {
-                  if (_selectedProductIndex == _currentIndex) {
-                    _selectedProductIndex = null;
-                  } else {
-                    _selectedProductIndex = _currentIndex;
-                  }
-                }),
+              // Selection button at bottom
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 32,
+                child: SelectionButton(
+                  isSelected: _selectedProductIndex == _currentIndex,
+                  onPressed: () => setState(() {
+                    if (_selectedProductIndex == _currentIndex) {
+                      _selectedProductIndex = null;
+                    } else {
+                      _selectedProductIndex = _currentIndex;
+                    }
+                  }),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-void _onSave() {
-  if (_selectedProductIndex != null) {
-    final selectedItem = allItems[_selectedProductIndex!];
+  void _onSave() {
+    if (_selectedProductIndex != null) {
+      final selectedItem = allItems[_selectedProductIndex!];
 
-    // Cast keepSelections ke Map<String, Accessory>
-    final Map<String, Accessory> selections =
-        Map<String, Accessory>.from(widget.keepSelections ?? {});
+      // Cast keepSelections ke Map<String, Accessory>
+      final Map<String, Accessory> selections =
+          Map<String, Accessory>.from(widget.keepSelections ?? {});
 
-    // Update the selections with the new selected item
-    if (selectedItem.category == Category.GLASSES) {
-      selections['glasses'] = selectedItem;
-    } else if (selectedItem.category == Category.EARRINGS) {
-      selections['earrings'] = selectedItem;
-    } else {
-      selections['hairstyle'] = selectedItem;
+      // Update the selections with the new selected item
+      if (selectedItem.category == Category.GLASSES) {
+        selections['glasses'] = selectedItem;
+      } else if (selectedItem.category == Category.EARRINGS) {
+        selections['earrings'] = selectedItem;
+      } else {
+        selections['hairstyle'] = selectedItem;
+      }
+
+      context.go(RouteConstants.editRoute, extra: {
+        'gender': widget.gender,
+        'prediction': widget.prediction,
+        'imageFile': widget.imageFile,
+        'selectedItem': selectedItem,
+        'keepSelections': selections,
+      });
     }
-
-    context.go(RouteConstants.editRoute, extra: {
-      'gender': widget.gender,
-      'prediction': widget.prediction,
-      'imageFile': widget.imageFile,
-      'selectedItem': selectedItem,
-      'keepSelections': selections,
-    });
   }
-}
 }
 
 // Simplified NavigationArrows widget

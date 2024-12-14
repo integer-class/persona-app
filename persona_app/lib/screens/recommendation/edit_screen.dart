@@ -14,7 +14,7 @@ class EditScreen extends StatefulWidget {
   _EditScreenState createState() => _EditScreenState();
 }
 
-class _EditScreenState extends State<EditScreen> {
+class _EditScreenState extends State<EditScreen> { 
   final PredictionRepository _predictionRepository = PredictionRepository(
     PredictionLocalDataSource(),
     PredictionRemoteDataSource(),
@@ -40,23 +40,20 @@ class _EditScreenState extends State<EditScreen> {
     final String gender = args?['gender'] ?? 'Unknown';
     final Prediction? prediction = args?['prediction'];
     final File? imageFile = args?['imageFile'];
-
-    // Future<void> _deleteImage() async {
-    //   if (imageFile != null) {
-    //     try {
-    //       await _predictionRepository.deleteImage(imageFile.path);
-    //       setState(() {
-    //         // Clear the image file
-    //       });
-    //     } catch (e) {
-    //       print('Error deleting image: $e');
-    //     }
-    //   }
-    // }
+    
+    Future<void> _deleteImage() async {
+      if (imageFile != null) {
+        try {
+          await _predictionRepository.deleteImage(prediction!.data.predictionId);
+        } catch (e) {
+          print('Error deleting image: $e');
+        }
+      }
+    }
 
     return WillPopScope(
       onWillPop: () async {
-        // await _deleteImage();
+        await _deleteImage();
         context.go(RouteConstants.uploadRoute);
         return false;
       },
@@ -66,7 +63,8 @@ class _EditScreenState extends State<EditScreen> {
           backgroundColor: Colors.black,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
+            onPressed: () async {
+              await _deleteImage();
               context.go(RouteConstants.uploadRoute);
             },
           ),

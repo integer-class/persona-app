@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:persona_app/data/repositories/prediction_repository.dart';
 import 'package:persona_app/data/datasource/local/prediction_local_datasource.dart';
 import 'package:persona_app/data/datasource/remote/prediction_remote_datasource.dart';
+import '../../data/models/prediction_model.dart';
 import '../../router/app_router.dart';
 
 class GenderSelectionScreen extends StatefulWidget {
@@ -11,6 +12,7 @@ class GenderSelectionScreen extends StatefulWidget {
 }
 
 class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
+  Prediction? prediction; // Untuk menyimpan hasil prediksi
   String selectedGender = ''; // Untuk menyimpan gender yang dipilih
   dynamic selectedFile; // Simpan file yang diterima melalui arguments
   bool isLoading = false;
@@ -90,24 +92,10 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
     }
   }
 
-  Future<void> _deleteImage() async {
-    if (selectedFile != null) {
-      try {
-        await _predictionRepository.deleteImage(selectedFile.path);
-        setState(() {
-          selectedFile = null;
-        });
-      } catch (e) {
-        print('Error deleting image: $e');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // await _deleteImage();
         context.go(RouteConstants.uploadRoute);
         return false; 
       },

@@ -49,4 +49,21 @@ class PredictionRemoteDataSource {
       rethrow;
     }
   }
+
+  Future<void> deleteImage(int imageId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/delete-image/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'image_id': imageId}),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to delete image: ${response.body}');
+      }
+    } catch (e) {
+      print('Error deleting image: $e');
+      rethrow;
+    }
+  }
 }

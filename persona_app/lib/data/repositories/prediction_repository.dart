@@ -33,4 +33,9 @@ class PredictionRepository {
     final prediction = await getLatestPrediction();
     return prediction?.data.otherOptions;
   }
+
+  Future<void> deleteImage(int imageId) async {
+    await remoteDataSource.deleteImage(imageId);
+  }
+
 }

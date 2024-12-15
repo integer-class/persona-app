@@ -36,7 +36,6 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   Future<void> _initializeData() async {
     await _checkAuthStatus(); // Check auth status dulu
     await _loadUsername(); // Kemudian load username
-    _checkForUserSelection(); // Check for user selection to save
   }
 
   Future<void> _loadUsername() async {
@@ -79,56 +78,6 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
       });
       print("Error checking auth status: $e");
     }
-  }
-
-  Future<void> _checkForUserSelection() async {
-    final args = GoRouterState.of(context).extra as Map<String, dynamic>?;
-    if (args != null && args['userSelection'] != null) {
-      final userSelection = args['userSelection'] as UserSelection;
-      final predictionRepository = PredictionRepository(
-        PredictionLocalDataSource(),
-        PredictionRemoteDataSource(),
-      );
-      try {
-        await predictionRepository.saveUserSelection(userSelection);
-        _showSuccessDialog('User selection saved successfully.');
-      } catch (e) {
-        print('Error saving user selection: $e');
-        _showErrorDialog('Failed to save user selection.');
-      }
-    }
-  }
-
-  void _showSuccessDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Success'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _handleProfileTap() {

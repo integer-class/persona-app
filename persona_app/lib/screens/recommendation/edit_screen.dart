@@ -97,11 +97,11 @@ class _EditScreenState extends State<EditScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Success'),
+          title: Text('Yay!'),
           content: Text(message),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.go(RouteConstants.historyRoute),
               child: Text('OK'),
             ),
           ],
@@ -113,11 +113,11 @@ class _EditScreenState extends State<EditScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Error'),
+          title: Text('Oops!'),
           content: Text(message),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.go(RouteConstants.uploadRoute),
               child: Text('OK'),
             ),
           ],
@@ -210,25 +210,53 @@ class _EditScreenState extends State<EditScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Face Analysis",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  Text(
+                    "Face Analysis",
+                    style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      prediction?.data.faceShape != null &&
-                              prediction!.data.faceShape.isNotEmpty
-                          ? 'Our system detects your face is "${prediction.data.faceShape}"'
-                          : 'Unable to detect face shape',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    prediction?.data.faceShape != null &&
+                        prediction!.data.faceShape.isNotEmpty
+                      ? '✨ Our system detects your face is "${prediction.data.faceShape}" ✨'
+                      : '⚠️ Unable to detect face shape ⚠️',
+                    style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
                     ),
+                  ),
+                  SizedBox(height: 10),
+                  Divider(color: Colors.grey[700]),
+                  SizedBox(height: 10),
+                  Text(
+                    'Tips for your face shape:',
+                    style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    '• Highlight your best features with the right hairstyle.',
+                    style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    '• Choose accessories that complement your face shape.',
+                    style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    ),
+                  ),
                   ],
                 ),
               ),

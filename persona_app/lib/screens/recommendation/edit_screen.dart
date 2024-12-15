@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/datasource/local/prediction_local_datasource.dart';
 import '../../data/datasource/remote/prediction_remote_datasource.dart';
+import '../../data/models/user_choice_model.dart';
 import '../../router/app_router.dart';
 import 'dart:io';
 import '../../data/models/prediction_model.dart';
@@ -14,7 +15,7 @@ class EditScreen extends StatefulWidget {
   _EditScreenState createState() => _EditScreenState();
 }
 
-class _EditScreenState extends State<EditScreen> { 
+class _EditScreenState extends State<EditScreen> {
   final PredictionRepository _predictionRepository = PredictionRepository(
     PredictionLocalDataSource(),
     PredictionRemoteDataSource(),
@@ -40,14 +41,120 @@ class _EditScreenState extends State<EditScreen> {
     final String gender = args?['gender'] ?? 'Unknown';
     final Prediction? prediction = args?['prediction'];
     final File? imageFile = args?['imageFile'];
-    
+
     Future<void> _deleteImage() async {
       if (imageFile != null) {
         try {
-          await _predictionRepository.deleteImage(prediction!.data.predictionId);
+          await _predictionRepository
+              .deleteImage(prediction!.data.predictionId);
         } catch (e) {
           print('Error deleting image: $e');
         }
+      }
+    }
+
+    void _showLoginDialog() {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Authentication Required'),
+          content: Text('You need to log in to save your selection.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.go(RouteConstants.loginRoute, extra: {
+                  'userSelection': UserSelection(
+                    predictionId: prediction!.data.predictionId,
+                    recommendationId: prediction.data.recommendationsId.first,
+                    selectedHairStyleId:
+                        selectionProvider.selectedHairstyle?.id ?? 0,
+                    selectedAccessoriesIds: [
+                      if (selectionProvider.selectedGlasses != null)
+                        selectionProvider.selectedGlasses!.id,
+                      if (selectionProvider.selectedEarrings != null)
+                        selectionProvider.selectedEarrings!.id,
+                    ],
+                  ),
+                });
+              },
+              child: Text('Login'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _deleteImage();
+                context.go(RouteConstants.uploadRoute);
+              },
+              child: Text('Maybe Later'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    void _showSuccessDialog(String message) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Success'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    void _showErrorDialog(String message) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Future<void> _saveUserSelection() async {
+      final selectionProvider =
+          Provider.of<SelectionProvider>(context, listen: false);
+      final args = GoRouterState.of(context).extra as Map<String, dynamic>?;
+      final Prediction? prediction = args?['prediction'];
+
+      if (prediction != null) {
+        final userSelection = UserSelection(
+          predictionId: prediction.data.predictionId,
+          recommendationId: prediction.data.recommendationsId.first,
+          selectedHairStyleId: selectionProvider.selectedHairstyle?.id ?? 0,
+          selectedAccessoriesIds: [
+            if (selectionProvider.selectedGlasses != null)
+              selectionProvider.selectedGlasses!.id,
+            if (selectionProvider.selectedEarrings != null)
+              selectionProvider.selectedEarrings!.id,
+          ],
+        );
+
+        try {
+          await _predictionRepository.saveUserSelection(userSelection);
+          _showSuccessDialog('User selection saved successfully.');
+          context.go(RouteConstants.uploadRoute);
+        } catch (e) {
+          print('Error saving user selection: $e');
+          _showErrorDialog('Failed to save user selection.');
+          _showLoginDialog();
+        }
+      } else {
+        _showLoginDialog();
       }
     }
 
@@ -75,9 +182,7 @@ class _EditScreenState extends State<EditScreen> {
           centerTitle: true,
           actions: [
             TextButton(
-              onPressed: () {
-                context.go(RouteConstants.uploadRoute);
-              },
+              onPressed: _saveUserSelection,
               child: Text(
                 'Save',
                 style: TextStyle(
@@ -157,12 +262,14 @@ class _EditScreenState extends State<EditScreen> {
                   NavigationButton(
                     imagePath: 'assets/images/hairstyle.png',
                     label: 'Hair Styles',
-                    selectedImageUrl: selectionProvider.selectedHairstyle?.image,
+                    selectedImageUrl:
+                        selectionProvider.selectedHairstyle?.image,
                     onTap: () {
                       context.go(RouteConstants.hairstyleRoute, extra: {
                         'recommendations':
                             prediction?.data.recommendations.hairStyles,
-                        'otherOptions': prediction?.data.otherOptions.hairStyles,
+                        'otherOptions':
+                            prediction?.data.otherOptions.hairStyles,
                         'title': 'Hair Style',
                         'gender': gender,
                         'prediction': prediction,
@@ -202,7 +309,8 @@ class _EditScreenState extends State<EditScreen> {
                     NavigationButton(
                       imagePath: 'assets/images/accessorry.png',
                       label: 'Earrings',
-                      selectedImageUrl: selectionProvider.selectedEarrings?.image,
+                      selectedImageUrl:
+                          selectionProvider.selectedEarrings?.image,
                       onTap: () {
                         final earringsRecommendations = prediction
                             ?.data.recommendations.accessories

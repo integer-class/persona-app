@@ -1,6 +1,10 @@
+import 'package:http/http.dart' as http;
+
 import '../datasource/local/prediction_local_datasource.dart';
 import '../datasource/remote/prediction_remote_datasource.dart';
 import '../models/prediction_model.dart';
+import '../models/user_choice_model.dart';
+import '../models/history_model.dart' as history_model;
 
 class PredictionRepository {
   final PredictionLocalDataSource localDataSource;
@@ -38,4 +42,11 @@ class PredictionRepository {
     await remoteDataSource.deleteImage(imageId);
   }
 
+  Future<void> saveUserSelection(UserSelection userSelection) async {
+    await remoteDataSource.saveUserSelection(userSelection);
+  }
+
+  Future<List<history_model.History>> getHistory() async {
+    return await remoteDataSource.getHistory();
+  }
 }

@@ -5,6 +5,10 @@ import '../../data/datasource/remote/auth_remote_datasource.dart';
 import '../../data/datasource/local/auth_local_datasource.dart';
 import '../../router/app_router.dart'; // Import the app router
 import 'package:go_router/go_router.dart';
+import '../../data/datasource/local/prediction_local_datasource.dart';
+import '../../data/datasource/remote/prediction_remote_datasource.dart';
+import '../../data/models/user_choice_model.dart';
+import '../../data/repositories/prediction_repository.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -200,6 +204,18 @@ class _SignupScreenState extends State<SignupScreen> {
         _isLoading = false; // Stop loading
       });
 
+      // Check if there is a user selection to save
+      final args = GoRouterState.of(context).extra as Map<String, dynamic>?;
+      if (args != null && args['userSelection'] != null) {
+        final userSelection = args['userSelection'] as UserSelection;
+        final predictionRepository = PredictionRepository(
+          PredictionLocalDataSource(),
+          PredictionRemoteDataSource(),
+        );
+        await predictionRepository.saveUserSelection(userSelection);
+        _showSuccessDialog('User selection saved successfully.');
+      }
+
       // Navigate to the Upload Photo Screen on successful signup
       context.go(RouteConstants.uploadRoute);
     } catch (e) {
@@ -227,6 +243,22 @@ class _SignupScreenState extends State<SignupScreen> {
           ],
         );
       },
+    );
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Success'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 }

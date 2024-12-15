@@ -32,7 +32,7 @@ class AuthLocalDatasource {
       final authData = await _secureStorage.read(key: 'auth_data');
       if (authData != null) {
         final auth = AuthResponseModel.fromJson(json.decode(authData));
-        return auth.data?.token != null; // Check if token exists
+        return auth.data?.token != null;  // Check if token exists
       }
       return false;
     } catch (e) {

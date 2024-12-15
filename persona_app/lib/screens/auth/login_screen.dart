@@ -3,8 +3,11 @@ import 'package:persona_app/data/datasource/remote/auth_remote_datasource.dart';
 import 'package:persona_app/data/datasource/local/auth_local_datasource.dart';
 import 'package:persona_app/data/repositories/auth_repository.dart';
 import 'package:go_router/go_router.dart';
+import '../../data/datasource/local/prediction_local_datasource.dart';
+import '../../data/datasource/remote/prediction_remote_datasource.dart';
+import '../../data/models/user_choice_model.dart';
+import '../../data/repositories/prediction_repository.dart';
 import '../../router/app_router.dart';
-import 'signup_screen.dart'; // Import the signup screen
 import '../home/upload_photo_screen.dart'; // Import the upload photo screen
 
 class LoginScreen extends StatefulWidget {
@@ -192,8 +195,20 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false; // Stop loading
       });
 
-      // Navigate to the Upload Photo Screen on successful login
-      context.go(RouteConstants.uploadRoute);
+      // Check if there is a user selection to save
+      final args = GoRouterState.of(context).extra as Map<String, dynamic>?;
+      if (args != null && args['userSelection'] != null) {
+        final userSelection = args['userSelection'] as UserSelection;
+        final predictionRepository = PredictionRepository(
+          PredictionLocalDataSource(),
+          PredictionRemoteDataSource(),
+        );
+        await predictionRepository.saveUserSelection(userSelection);
+        _showSuccessDialog('User selection saved successfully.');
+      }
+
+      // Navigate to the History Screen on successful login
+      context.go(RouteConstants.historyRoute);
     } catch (e) {
       setState(() {
         _isLoading = false; // Stop loading
@@ -205,7 +220,6 @@ class _LoginScreenState extends State<LoginScreen> {
           return AlertDialog(
             title: Text('Login Failed'),
             content: Text(e.toString()),
-            // content: Text('Wrong username or password. Please try again.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -216,5 +230,21 @@ class _LoginScreenState extends State<LoginScreen> {
         },
       );
     }
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Success'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 }

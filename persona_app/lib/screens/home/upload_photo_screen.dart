@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
-import 'package:persona_app/data/models/auth_model.dart';
+import '../../data/datasource/local/auth_local_datasource.dart';
 import '../../data/datasource/local/prediction_local_datasource.dart';
+import '../../data/datasource/remote/auth_remote_datasource.dart';
 import '../../data/datasource/remote/prediction_remote_datasource.dart';
 import '../../data/models/user_choice_model.dart';
+import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/prediction_repository.dart';
 import '../../router/app_router.dart';
-import 'package:persona_app/data/datasource/remote/auth_remote_datasource.dart';
-import 'package:persona_app/data/datasource/local/auth_local_datasource.dart';
-import 'package:persona_app/data/repositories/auth_repository.dart';
 import 'package:provider/provider.dart';
 import '../../provider/selection_provider.dart';
 

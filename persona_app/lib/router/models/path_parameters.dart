@@ -1,10 +1,10 @@
-import 'package:persona_app/router/app_router.dart';
+import 'package:Persona/router/app_router.dart';
 
 class PathParameters {
   final RootTab rootTab;
 
   PathParameters({
-    this.rootTab = RootTab.splash,
+    this.rootTab = RootTab.onboarding,
   });
 
   Map<String, String> toMap() {

@@ -1,4 +1,4 @@
-name: persona_app
+name: Persona
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -17,6 +17,7 @@ dependencies:
   go_router: ^14.6.2
   flutter_secure_storage: ^9.2.2
   provider: ^6.1.2
+  flutter_launcher_icons: ^0.14.2
 
 dev_dependencies:
   flutter_test:
@@ -38,8 +39,12 @@ flutter:
     - assets/images/glasses.png
     - assets/images/accessorry.png
     - assets/images/card1.png
-    - assets/images/card2.png
-    - assets/images/card3.png
-    - assets/images/card4.png
-    - assets/images/card5.png
-    - assets/images/card6.png
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"
+  adaptive_icon_foreground: "assets/images/logo.png" # Set the foreground image (same or different from image_path)
+  adaptive_icon_background: "#ffffff" # Set the background color of the adaptive icon
+  min_sdk_android: 21
+  android_require_shape: true

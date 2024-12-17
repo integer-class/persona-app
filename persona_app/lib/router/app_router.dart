@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/auth/login_screen.dart';
-import '../screens/splash_screen.dart';
 import '../screens/home/upload_photo_screen.dart';
 import '../screens/home/onboarding_screen.dart';
 import '../screens/auth/signup_screen.dart';
@@ -36,11 +35,10 @@ Future<String?> authGuard(BuildContext context, GoRouterState state) async {
 }
 
 final GoRouter router = GoRouter(
+  initialLocation: '/',
   routes: [
     GoRoute(
-      name: RouteConstants.splashRoute,
-      path: RouteConstants.splashRoute,
-      builder: (context, state) => SplashScreen(),
+      path: '/',
       redirect: (context, state) async {
         final authRepository = AuthRepository(
           AuthRemoteDataSource(),
@@ -52,7 +50,7 @@ final GoRouter router = GoRouter(
           isLoggedIn = true;
           return RouteConstants.uploadRoute;
         }
-        return null;
+        return RouteConstants.onboardingRoute;
       },
     ),
     GoRoute(

@@ -66,12 +66,12 @@ class PredictionRemoteDataSource {
 
   Future<void> deleteImage(int imageId) async {
     try {
-      final authData = await _authLocalDatasource.getAuthData();
+      // final authData = await _authLocalDatasource.getAuthData();
       final response = await http.post(
         Uri.parse('$baseUrl/delete-image/'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Token ${authData?.data?.token}',
+          // 'Authorization': 'Token ${authData?.data?.token}',
         },
         body: jsonEncode({'image_id': imageId}),
       );

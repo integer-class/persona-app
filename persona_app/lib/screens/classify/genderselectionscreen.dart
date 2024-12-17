@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:persona_app/data/repositories/prediction_repository.dart';
-import 'package:persona_app/data/datasource/local/prediction_local_datasource.dart';
-import 'package:persona_app/data/datasource/remote/prediction_remote_datasource.dart';
+import '../../data/datasource/local/prediction_local_datasource.dart';
+import '../../data/datasource/remote/prediction_remote_datasource.dart';
 import '../../data/models/prediction_model.dart';
+import '../../data/repositories/prediction_repository.dart';
 import '../../router/app_router.dart';
 
 class GenderSelectionScreen extends StatefulWidget {

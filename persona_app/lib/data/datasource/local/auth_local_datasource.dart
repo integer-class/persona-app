@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:persona_app/data/models/auth_model.dart';
+import 'package:Persona/data/models/auth_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthLocalDatasource {

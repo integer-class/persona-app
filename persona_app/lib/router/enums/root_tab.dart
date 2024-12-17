@@ -1,7 +1,6 @@
-part of 'package:persona_app/router/app_router.dart';
+part of 'package:Persona/router/app_router.dart';
 
 enum RootTab {
-  splash('0'),
   login('1'),
   upload('2'),
   signup('3'),
@@ -21,7 +20,7 @@ enum RootTab {
   factory RootTab.fromIndex(int index) {
     return values.firstWhere(
       (value) => value.value == '$index',
-      orElse: () => RootTab.splash,
+      orElse: () => RootTab.onboarding,
     );
   }
 }

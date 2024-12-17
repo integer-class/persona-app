@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../data/datasource/local/prediction_local_datasource.dart';
-import '../../data/datasource/remote/prediction_remote_datasource.dart';
-import '../../data/repositories/prediction_repository.dart';
+import '../../data/datasource/local/history_local_datasource.dart';
+import '../../data/datasource/remote/history_remote_datasource.dart';
+import '../../data/repositories/history_repository.dart';
 import '../../data/models/history_model.dart';
 import '../../router/app_router.dart'; // Import the History model
 
@@ -10,11 +10,11 @@ class HistoryScreen extends StatelessWidget {
   const HistoryScreen({Key? key}) : super(key: key);
 
   Future<List<History>> _fetchHistory() async {
-    final predictionRepository = PredictionRepository(
-      PredictionLocalDataSource(),
-      PredictionRemoteDataSource(),
+    final historyRepository = HistoryRepository(
+      HistoryLocalDatasource(),
+      HistoryRemoteDatasource(),
     );
-    return await predictionRepository.getHistory();
+    return await historyRepository.getHistory();
   }
 
   @override
@@ -47,7 +47,8 @@ class HistoryScreen extends StatelessWidget {
                     crossAxisCount: 3, // 3 items per row
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    childAspectRatio: 94 / 139, // Maintain the aspect ratio of 94x139
+                    childAspectRatio:
+                        94 / 139, // Maintain the aspect ratio of 94x139
                   ),
                   itemCount: histories.length,
                   itemBuilder: (context, index) {
@@ -55,35 +56,44 @@ class HistoryScreen extends StatelessWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Image Container with fixed dimensions
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            width: 94,
-                            height: 139,
-                            color: Colors.black12, // Fallback background color
-                            child: Image.network(
-                              history.prediction.image,
+                        GestureDetector(
+                          onTap: () => context.go(
+                            RouteConstants.historyDetailRoute,
+                            extra: history,
+                          ),
+                          // Image Container with fixed dimensions
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
                               width: 94,
                               height: 139,
-                              fit: BoxFit.cover, // Ensures the image fits within dimensions
-                              errorBuilder: (context, error, stackTrace) {
-                                // Placeholder if image fails to load
-                                return Container(
-                                  color: Colors.grey,
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      color: Colors.white,
-                                      size: 30,
+                              color:
+                                  Colors.black12, // Fallback background color
+                              child: Image.network(
+                                history.prediction.image,
+                                width: 94,
+                                height: 139,
+                                fit: BoxFit
+                                    .cover, // Ensures the image fits within dimensions
+                                errorBuilder: (context, error, stackTrace) {
+                                  // Placeholder if image fails to load
+                                  return Container(
+                                    color: Colors.grey,
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
                           ),
+                          // Text with ellipsis overflow
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 5.0),
                       ],
                     );
                   },

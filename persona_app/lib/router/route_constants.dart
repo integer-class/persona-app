@@ -14,4 +14,5 @@ class RouteConstants {
   static const String glassesRoute = '/glasses';
   static const String hairstyleRoute = '/hairstyle';
   static const String feedbackRoute = '/feedback';
+  static const String historyDetailRoute = '/history_detail';
 }

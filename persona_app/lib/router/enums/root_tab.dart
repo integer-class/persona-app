@@ -12,7 +12,8 @@ enum RootTab {
   accessories('9'),
   glasses('10'),
   hairstyle('11'),
-  feedback('12');
+  feedback('12'),
+  historyDetail('13');
 
   final String value;
   const RootTab(this.value);

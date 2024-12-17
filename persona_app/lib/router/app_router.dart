@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../data/models/history_model.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/home/upload_photo_screen.dart';
 import '../screens/home/onboarding_screen.dart';
 import '../screens/auth/signup_screen.dart';
+import '../screens/profile/history_detail_screen.dart';
 import '../screens/recommendation/edit_screen.dart';
 import '../screens/classify/genderselectionscreen.dart';
 import '../screens/profile/profile_screen.dart';
@@ -115,6 +117,12 @@ final GoRouter router = GoRouter(
       path: RouteConstants.feedbackRoute,
       builder: (context, state) => FeedbackScreen(),
       redirect: authGuard,
+    ),
+    GoRoute(
+      path: RouteConstants.historyDetailRoute,
+      builder: (context, state) => HistoryDetailScreen(
+        history: state.extra as History,
+      ),
     ),
   ],
 );

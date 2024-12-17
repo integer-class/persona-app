@@ -5,7 +5,6 @@ import '../../models/prediction_model.dart' as prediction_model;
 import '../../../constant/variables.dart';
 import '../../models/user_choice_model.dart';
 import '../../datasource/local/auth_local_datasource.dart';
-import '../../models/history_model.dart' as history_model;
 
 class PredictionRemoteDataSource {
   final AuthLocalDatasource _authLocalDatasource = AuthLocalDatasource();
@@ -106,34 +105,6 @@ class PredictionRemoteDataSource {
       }
     } catch (e) {
       print('Error saving user selection: $e');
-      rethrow;
-    }
-  }
-
-  Future<List<history_model.History>> getHistory() async {
-    try {
-      final authData = await _authLocalDatasource.getAuthData();
-      if (authData == null || authData.data?.token == null) {
-        throw Exception('No authentication token found');
-      }
-      final response = await http.get(
-        Uri.parse('$baseUrl/history/'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Token ${authData.data!.token}',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> responseData = jsonDecode(response.body);
-        return responseData
-            .map((json) => history_model.History.fromJson(json))
-            .toList();
-      } else {
-        throw Exception('Failed to fetch history: ${response.body}');
-      }
-    } catch (e) {
-      print('Error fetching history: $e');
       rethrow;
     }
   }

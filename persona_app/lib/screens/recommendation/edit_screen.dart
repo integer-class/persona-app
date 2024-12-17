@@ -93,22 +93,6 @@ class _EditScreenState extends State<EditScreen> {
       );
     }
 
-    void _showSuccessDialog(String message) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Yay!'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => context.go(RouteConstants.historyRoute),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
-
     void _showErrorDialog(String message) {
       showDialog(
         context: context,
@@ -118,8 +102,12 @@ class _EditScreenState extends State<EditScreen> {
           actions: [
             TextButton(
               onPressed: () => context.go(RouteConstants.uploadRoute),
-              child: Text('OK'),
+              child: Text('Back to Home'),
             ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Continue'),
+            )
           ],
         ),
       );
@@ -146,11 +134,10 @@ class _EditScreenState extends State<EditScreen> {
 
         try {
           await _predictionRepository.saveUserSelection(userSelection);
-          _showSuccessDialog('User selection saved successfully.');
-          context.go(RouteConstants.uploadRoute);
+          context.go(RouteConstants.uploadRoute, extra: {'showSuccess': true});
         } catch (e) {
           print('Error saving user selection: $e');
-          _showErrorDialog('Failed to save user selection.');
+          _showErrorDialog('Without logging in, you cannot save your selection.');
           _showLoginDialog();
         }
       } else {
@@ -194,180 +181,166 @@ class _EditScreenState extends State<EditScreen> {
             ),
           ],
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: Stack(
           children: [
-            // Face Analysis Box
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              child: Container(
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.grey[900],
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey[700]!),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Face analysis popup
+                if (prediction != null) _buildFaceAnalysisPopup(prediction),
+                // image section
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: imageFile != null
+                          ? Image.file(
+                              imageFile,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              'assets/images/jessica.png',
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  Text(
-                    "Face Analysis",
-                    style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    prediction?.data.faceShape != null &&
-                        prediction!.data.faceShape.isNotEmpty
-                      ? '✨ Our system detects your face is "${prediction.data.faceShape}" ✨'
-                      : '⚠️ Unable to detect face shape ⚠️',
-                    style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                    fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Divider(color: Colors.grey[700]),
-                  SizedBox(height: 10),
-                  Text(
-                    'Tips for your face shape:',
-                    style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    '• Highlight your best features with the right hairstyle.',
-                    style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    '• Choose accessories that complement your face shape.',
-                    style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                    ),
-                  ),
-                  ],
-                ),
-              ),
-            ),
-            // Image Section
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: imageFile != null
-                      ? Image.file(
-                          imageFile,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          'assets/images/jessica.png',
-                          fit: BoxFit.cover,
+                // Navigation Buttons
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  color: Colors.black,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Hair Style Button
+                      NavigationButton(
+                        imagePath: 'assets/images/hairstyle.png',
+                        label: 'Hair Styles',
+                        selectedImageUrl:
+                            selectionProvider.selectedHairstyle?.image,
+                        onTap: () {
+                          context.go(RouteConstants.hairstyleRoute, extra: {
+                            'recommendations':
+                                prediction?.data.recommendations.hairStyles,
+                            'otherOptions':
+                                prediction?.data.otherOptions.hairStyles,
+                            'title': 'Hair Style',
+                            'gender': gender,
+                            'prediction': prediction,
+                            'imageFile': imageFile,
+                            'selectedItem': selectionProvider.selectedHairstyle,
+                          });
+                        },
+                      ),
+                      // Glasses Button
+                      NavigationButton(
+                        imagePath: 'assets/images/glasses.png',
+                        label: 'Glasses',
+                        selectedImageUrl:
+                            selectionProvider.selectedGlasses?.image,
+                        onTap: () {
+                          final glassesRecommendations = prediction
+                              ?.data.recommendations.accessories
+                              .where((a) => a.category == Category.GLASSES)
+                              .toList();
+                          final glassesOtherOptions = prediction
+                              ?.data.otherOptions.accessories
+                              .where((a) => a.category == Category.GLASSES)
+                              .toList();
+
+                          context.go(RouteConstants.glassesRoute, extra: {
+                            'recommendations': glassesRecommendations,
+                            'otherOptions': glassesOtherOptions,
+                            'title': 'Glasses',
+                            'gender': gender,
+                            'prediction': prediction,
+                            'imageFile': imageFile,
+                            'selectedItem': selectionProvider.selectedGlasses,
+                          });
+                        },
+                      ),
+                      // Accessory Button (only if gender is Female)
+                      if (gender == 'Female')
+                        NavigationButton(
+                          imagePath: 'assets/images/accessorry.png',
+                          label: 'Earrings',
+                          selectedImageUrl:
+                              selectionProvider.selectedEarrings?.image,
+                          onTap: () {
+                            final earringsRecommendations = prediction
+                                ?.data.recommendations.accessories
+                                .where((a) => a.category == Category.EARRINGS)
+                                .toList();
+                            final earringsOtherOptions = prediction
+                                ?.data.otherOptions.accessories
+                                .where((a) => a.category == Category.EARRINGS)
+                                .toList();
+
+                            context.go(RouteConstants.accessoriesRoute, extra: {
+                              'recommendations': earringsRecommendations,
+                              'otherOptions': earringsOtherOptions,
+                              'title': 'Earrings Recommendations',
+                              'gender': gender,
+                              'prediction': prediction,
+                              'imageFile': imageFile,
+                              'selectedItem':
+                                  selectionProvider.selectedEarrings,
+                            });
+                          },
                         ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-            // Navigation Buttons
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              color: Colors.black,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Hair Style Button
-                  NavigationButton(
-                    imagePath: 'assets/images/hairstyle.png',
-                    label: 'Hair Styles',
-                    selectedImageUrl:
-                        selectionProvider.selectedHairstyle?.image,
-                    onTap: () {
-                      context.go(RouteConstants.hairstyleRoute, extra: {
-                        'recommendations':
-                            prediction?.data.recommendations.hairStyles,
-                        'otherOptions':
-                            prediction?.data.otherOptions.hairStyles,
-                        'title': 'Hair Style',
-                        'gender': gender,
-                        'prediction': prediction,
-                        'imageFile': imageFile,
-                        'selectedItem': selectionProvider.selectedHairstyle,
-                      });
-                    },
-                  ),
-                  // Glasses Button
-                  NavigationButton(
-                    imagePath: 'assets/images/glasses.png',
-                    label: 'Glasses',
-                    selectedImageUrl: selectionProvider.selectedGlasses?.image,
-                    onTap: () {
-                      final glassesRecommendations = prediction
-                          ?.data.recommendations.accessories
-                          .where((a) => a.category == Category.GLASSES)
-                          .toList();
-                      final glassesOtherOptions = prediction
-                          ?.data.otherOptions.accessories
-                          .where((a) => a.category == Category.GLASSES)
-                          .toList();
-
-                      context.go(RouteConstants.glassesRoute, extra: {
-                        'recommendations': glassesRecommendations,
-                        'otherOptions': glassesOtherOptions,
-                        'title': 'Glasses',
-                        'gender': gender,
-                        'prediction': prediction,
-                        'imageFile': imageFile,
-                        'selectedItem': selectionProvider.selectedGlasses,
-                      });
-                    },
-                  ),
-                  // Accessory Button (only if gender is Female)
-                  if (gender == 'Female')
-                    NavigationButton(
-                      imagePath: 'assets/images/accessorry.png',
-                      label: 'Earrings',
-                      selectedImageUrl:
-                          selectionProvider.selectedEarrings?.image,
-                      onTap: () {
-                        final earringsRecommendations = prediction
-                            ?.data.recommendations.accessories
-                            .where((a) => a.category == Category.EARRINGS)
-                            .toList();
-                        final earringsOtherOptions = prediction
-                            ?.data.otherOptions.accessories
-                            .where((a) => a.category == Category.EARRINGS)
-                            .toList();
-
-                        context.go(RouteConstants.accessoriesRoute, extra: {
-                          'recommendations': earringsRecommendations,
-                          'otherOptions': earringsOtherOptions,
-                          'title': 'Earrings Recommendations',
-                          'gender': gender,
-                          'prediction': prediction,
-                          'imageFile': imageFile,
-                          'selectedItem': selectionProvider.selectedEarrings,
-                        });
-                      },
-                    ),
-                ],
-              ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+}
+
+// Add this method to the _EditScreenState class
+Widget _buildFaceAnalysisPopup(Prediction? prediction) {
+  return SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 224, 146, 146)?.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+            )
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.face, color: Colors.white70),
+            SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                prediction?.data.faceShape != null &&
+                        prediction!.data.faceShape.isNotEmpty
+                    ? 'Face Shape: ${prediction.data.faceShape}'
+                    : 'Face shape not detected',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class NavigationButton extends StatelessWidget {

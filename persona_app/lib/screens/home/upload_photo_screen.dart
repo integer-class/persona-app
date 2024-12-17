@@ -88,6 +88,35 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
     context.go(RouteConstants.profileRoute);
   }
 
+  void _showSuccessNotification() {
+    // Custom snackbar with animation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).size.height - 150,
+          left: 16,
+          right: 16,
+        ),
+        duration: Duration(seconds: 1),
+        backgroundColor: Color.fromARGB(255, 224, 146, 146).withOpacity(0.9),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        content: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Your style has been saved to history!',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // Function to pick image from gallery
   Future<void> _pickImageFromGallery() async {
     final picker = ImagePicker();
@@ -155,7 +184,15 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   @override
   Widget build(BuildContext context) {
     Provider.of<SelectionProvider>(context, listen: false).resetSelections();
-
+    // Check route parameters for success message
+    final routeState = GoRouterState.of(context);
+    if (routeState.extra != null &&
+        (routeState.extra as Map)['showSuccess'] == true) {
+      // Show notification after build is complete
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showSuccessNotification();
+      });
+    }
     return Scaffold(
       body: Stack(
         children: [

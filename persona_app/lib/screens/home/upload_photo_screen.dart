@@ -24,17 +24,28 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   File? _selectedImage;
   String username = "Guest";
   bool isLoggedIn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeData();
-  }
+  bool _hasShownNotification = false;
 
   // Metode untuk menginisialisasi data
   Future<void> _initializeData() async {
     await _checkAuthStatus(); // Check auth status dulu
     await _loadUsername(); // Kemudian load username
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+    // Tambahkan pengecekan success notification di initState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final routeState = GoRouterState.of(context);
+      if (routeState.extra != null &&
+          (routeState.extra as Map)['showSuccess'] == true) {
+        _showSuccessNotification();
+        // Clear route extra data
+        context.go(RouteConstants.uploadRoute);
+      }
+    });
   }
 
   Future<void> _loadUsername() async {
@@ -89,7 +100,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   }
 
   void _showSuccessNotification() {
-    // Custom snackbar with animation
+    // Hapus pengecekan _hasShownNotification di sini
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
@@ -98,7 +109,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
           left: 16,
           right: 16,
         ),
-        duration: Duration(seconds: 1),
+        duration: Duration(seconds: 3),
         backgroundColor: Color.fromARGB(255, 224, 146, 146).withOpacity(0.9),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         content: Row(
@@ -182,17 +193,14 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   }
 
   @override
+  void dispose() {
+    _hasShownNotification = false; // Reset flag when disposed
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Provider.of<SelectionProvider>(context, listen: false).resetSelections();
-    // Check route parameters for success message
-    final routeState = GoRouterState.of(context);
-    if (routeState.extra != null &&
-        (routeState.extra as Map)['showSuccess'] == true) {
-      // Show notification after build is complete
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showSuccessNotification();
-      });
-    }
     return Scaffold(
       body: Stack(
         children: [

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../models/auth_model.dart';
 import '../../../constant/variables.dart';
+import '../local/auth_local_datasource.dart';
 
 class AuthRemoteDataSource {
   // auth_remote_datasource.dart
@@ -76,4 +77,31 @@ class AuthRemoteDataSource {
       rethrow;
     }
   }
+
+  Future<AuthResponseModel> getProfile() async {
+    try {
+      final authData = await AuthLocalDatasource().getAuthData();
+      if (authData?.data?.token == null) {
+        throw Exception('No auth token found');
+      }
+
+      final url = Uri.parse('$baseUrl/profile/');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token ${authData!.data!.token}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return AuthResponseModel.fromJson(jsonDecode(response.body));
+      }
+
+      throw Exception('Failed to fetch profile');
+    } catch (e) {
+      print('Error fetching profile: $e');
+      rethrow;
+    }
+  }  
 }

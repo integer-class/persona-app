@@ -33,4 +33,15 @@ class AuthRepository {
   Future<bool> isAuth() async {
     return await authLocalDatasource.isAuth();
   }
+
+  Future<AuthResponseModel?> getProfile() async {
+    try {
+      final profile = await authRemoteDataSource.getProfile();
+      await authLocalDatasource.saveAuthData(profile); // Update local data
+      return profile;
+    } catch (e) {
+      print('Error getting profile: $e');
+      return null;
+    }
+  }
 }

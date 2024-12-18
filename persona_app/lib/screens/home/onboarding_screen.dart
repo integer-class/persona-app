@@ -24,7 +24,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
     {
       "title": "Ready To Transform? Start Now!",
-      "description": "Explore your new look with personalized suggestions. It’s style, made for you!",
+      "description":
+          "Explore your new look with personalized suggestions. It’s style, made for you!",
       "image": "assets/images/img-onb3.png",
     },
   ];
@@ -32,127 +33,144 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: onboardingData.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-            ),
-            child: Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(onboardingData[index]["image"]!),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    height: 200,
+      body: SafeArea(
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: onboardingData.length,
+          onPageChanged: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          itemBuilder: (context, index) {
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: Stack(
+                children: [
+                  // Background Image
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(0xFF313130),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(48),
-                        topRight: Radius.circular(48),
+                      image: DecorationImage(
+                        image: AssetImage(onboardingData[index]["image"]!),
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 16.0, left: 28.0, right: 28.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            onboardingData[index]["title"]!,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Opacity(
-                            opacity: 0.80,
-                            child: Text(
-                              onboardingData[index]["description"]!,
+                  ),
+
+                  // Bottom Container with Content
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      height: MediaQuery.of(context).size.height *
+                          0.3, // 30% of screen height
+                      padding: const EdgeInsets.only(
+                          bottom: 80), // Add padding for buttons
+                      decoration: BoxDecoration(
+                        color: Color(0xFF313130),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(48),
+                          topRight: Radius.circular(48),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 28.0, vertical: 16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              onboardingData[index]["title"]!,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Flexible(
+                              child: SingleChildScrollView(
+                                child: Opacity(
+                                  opacity: 0.80,
+                                  child: Text(
+                                    onboardingData[index]["description"]!,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Navigation Buttons
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      height: 80,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () =>
+                                context.go(RouteConstants.uploadRoute),
+                            child: Text(
+                              'Skip',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 30),
+                          TextButton(
+                            onPressed: () {
+                              if (_currentIndex < onboardingData.length - 1) {
+                                _pageController.nextPage(
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeIn,
+                                );
+                              } else {
+                                context.go(RouteConstants.uploadRoute);
+                              }
+                            },
+                            child: Text(
+                              'Next',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
-                ),
-                Positioned(
-                  left: 20,
-                  bottom: 30,
-                  child: TextButton(
-                    onPressed: () {
-                      // Navigate directly to UploadPhotoScreen
-                      context.go(RouteConstants.uploadRoute);
-                    },
-                    child: Text(
-                      'Skip',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: 20,
-                  bottom: 30,
-                  child: TextButton(
-                    onPressed: () {
-                      if (_currentIndex < onboardingData.length - 1) {
-                        _pageController.nextPage(
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeIn,
-                        );
-                      } else {
-                        // Navigate directly to UploadPhotoScreen
-                        context.go(RouteConstants.uploadRoute);
-                      }
-                    },
-                    child: Text(
-                      'Next',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

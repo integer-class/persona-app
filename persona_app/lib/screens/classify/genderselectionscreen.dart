@@ -5,6 +5,7 @@ import '../../data/datasource/remote/prediction_remote_datasource.dart';
 import '../../data/models/prediction_model.dart';
 import '../../data/repositories/prediction_repository.dart';
 import '../../router/app_router.dart';
+import '../utils/prediction_loading_overlay.dart';
 
 class GenderSelectionScreen extends StatefulWidget {
   @override
@@ -16,6 +17,8 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
   String selectedGender = ''; // Untuk menyimpan gender yang dipilih
   dynamic selectedFile; // Simpan file yang diterima melalui arguments
   bool isLoading = false;
+  String _loadingState = '';
+  double _loadingProgress = 0.0;
   final PredictionRepository _predictionRepository = PredictionRepository(
     PredictionLocalDataSource(),
     PredictionRemoteDataSource(),
@@ -44,6 +47,8 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
 
     setState(() {
       isLoading = true;
+      _loadingState = 'Preparing image';
+      _loadingProgress = 0.2;
     });
 
     try {
@@ -51,10 +56,24 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
       print('Image path: ${selectedFile.path}');
       print('Selected gender: $selectedGender');
 
+      setState(() {
+        _loadingState = 'Analyzing';
+        _loadingProgress = 0.4;
+      });
+
+      await Future.delayed(Duration(milliseconds: 500)); // Smooth transition
+
       final prediction = await _predictionRepository.predict(
         selectedFile.path,
         selectedGender.toLowerCase(),
       );
+
+      setState(() {
+        _loadingState = 'Generating';
+        _loadingProgress = 0.8;
+      });
+
+      await Future.delayed(Duration(milliseconds: 500)); // Smooth transition
 
       if (!mounted) return;
 
@@ -63,6 +82,13 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
       }
 
       print('Prediction successful: ${prediction.data.faceShape}');
+
+      setState(() {
+        _loadingState = 'Complete!';
+        _loadingProgress = 1.0;
+      });
+
+      await Future.delayed(Duration(milliseconds: 300));
 
       context.go(
         RouteConstants.editRoute,
@@ -97,74 +123,84 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
     return WillPopScope(
       onWillPop: () async {
         context.go(RouteConstants.uploadRoute);
-        return false; 
+        return false;
       },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Choose Gender',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 40),
-              Row(
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor: Colors.black,
+            body: SafeArea(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedGender = 'Male';
-                      });
-                    },
-                    child: GenderButton(
-                      gender: 'Male',
-                      color: selectedGender == 'Male'
-                          ? Colors.blue
-                          : Colors.blueAccent[100],
+                  Text(
+                    'Choose Gender',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedGender = 'Female';
-                      });
-                    },
-                    child: GenderButton(
-                      gender: 'Female',
-                      color: selectedGender == 'Female'
-                          ? Colors.pink
-                          : Color.fromARGB(255, 255, 172, 200),
+                  SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedGender = 'Male';
+                          });
+                        },
+                        child: GenderButton(
+                          gender: 'Male',
+                          color: selectedGender == 'Male'
+                              ? Colors.blue
+                              : Colors.blueAccent[100],
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedGender = 'Female';
+                          });
+                        },
+                        child: GenderButton(
+                          gender: 'Female',
+                          color: selectedGender == 'Female'
+                              ? Colors.pink
+                              : Color.fromARGB(255, 255, 172, 200),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 60),
+                  ElevatedButton(
+                    onPressed: selectedGender.isEmpty ? null : _handleContinue,
+                    child: isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text('Continue'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: selectedGender.isEmpty
+                          ? Colors.grey
+                          : Colors.blueAccent[100],
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 60),
-              ElevatedButton(
-                onPressed: selectedGender.isEmpty ? null : _handleContinue,
-                child: isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text('Continue'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: selectedGender.isEmpty
-                      ? Colors.grey
-                      : Colors.blueAccent[100],
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          if (isLoading)
+            PredictionLoadingOverlay(
+              currentState: _loadingState,
+              progress: _loadingProgress,
+            ),
+        ],
       ),
     );
   }

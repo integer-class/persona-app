@@ -18,6 +18,9 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   provider: ^6.1.2
   flutter_launcher_icons: ^0.14.2
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
+  lottie: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -29,6 +32,7 @@ flutter:
 
   assets:
       - assets/images/
+      - assets/animations/face-scan.json
     # - assets/images/Frame-2.png
     # - assets/images/img-onb1.png
     # - assets/images/img-onb2.png

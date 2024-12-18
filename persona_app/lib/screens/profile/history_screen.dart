@@ -26,75 +26,162 @@ class HistoryScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('History'),
-          backgroundColor: Colors.black87,
+          title: const Text(
+            'History',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.black,
+          elevation: 0,
         ),
         body: FutureBuilder<List<History>>(
           future: _fetchHistory(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              );
             } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 60,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error: ${snapshot.error}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No history found'));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(
+                      Icons.history,
+                      color: Colors.grey,
+                      size: 60,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'No history found',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Your style selections will appear here',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
             } else {
               final histories = snapshot.data!;
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // 3 items per row
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio:
-                        94 / 139, // Maintain the aspect ratio of 94x139
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.75,
                   ),
                   itemCount: histories.length,
                   itemBuilder: (context, index) {
                     final history = histories[index];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () => context.go(
-                            RouteConstants.historyDetailRoute,
-                            extra: history,
-                          ),
-                          // Image Container with fixed dimensions
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              width: 94,
-                              height: 139,
-                              color:
-                                  Colors.black12, // Fallback background color
-                              child: Image.network(
-                                history.prediction.image,
-                                width: 94,
-                                height: 139,
-                                fit: BoxFit
-                                    .cover, // Ensures the image fits within dimensions
-                                errorBuilder: (context, error, stackTrace) {
-                                  // Placeholder if image fails to load
-                                  return Container(
-                                    color: Colors.grey,
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.broken_image,
-                                        color: Colors.white,
-                                        size: 30,
+                    return GestureDetector(
+                      onTap: () => context.go(
+                        RouteConstants.historyDetailRoute,
+                        extra: history,
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[900],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(12),
+                                ),
+                                child: Image.network(
+                                  history.prediction.image,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[800],
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.broken_image,
+                                          color: Colors.white54,
+                                          size: 40,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                          // Text with ellipsis overflow
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Face Shape: ${_getFaceShapeName(history.prediction.faceShape)}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _formatDate(history.createdAt),
+                                    style: TextStyle(
+                                      color: Colors.grey[400],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 5.0),
-                      ],
+                      ),
                     );
                   },
                 ),
@@ -102,8 +189,23 @@ class HistoryScreen extends StatelessWidget {
             }
           },
         ),
-        backgroundColor: Colors.black87, // Background color
+        backgroundColor: Colors.black,
       ),
     );
+  }
+
+  String _getFaceShapeName(int shapeId) {
+    Map<int, String> faceShapes = {
+      1: 'Oval',
+      2: 'Round',
+      3: 'Square',
+      4: 'Heart',
+      5: 'Diamond',
+    };
+    return faceShapes[shapeId] ?? 'Unknown';
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

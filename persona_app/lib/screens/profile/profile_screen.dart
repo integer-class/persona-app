@@ -4,6 +4,7 @@ import '../../router/app_router.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/datasource/remote/auth_remote_datasource.dart';
 import '../../data/datasource/local/auth_local_datasource.dart';
+import 'information_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -168,7 +169,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 18),
                   onTap: () {
-                    // Add Information navigation or functionality here
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InformationScreen(),
+                      ),
+                    );
                   },
                 ),
                 ListTile(

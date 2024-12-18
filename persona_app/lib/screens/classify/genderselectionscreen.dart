@@ -37,6 +37,68 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
     }
   }
 
+  void _showErrorDialog(String title, String message, {VoidCallback? onRetry}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(title,
+            style:
+                TextStyle(color: Colors.red[300], fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(message),
+            SizedBox(height: 16),
+            Text(
+              'Suggestions:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text('• Make sure the face is clearly visible'),
+            Text('• Ensure good lighting conditions'),
+            Text('• Try using a different photo'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context
+                  .go(RouteConstants.uploadRoute); // Go back to upload screen
+            },
+            child: Text('Choose Another Photo'),
+          ),
+          if (onRetry != null)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                onRetry();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black87,
+              ),
+              child: Text('Retry'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _getErrorMessage(dynamic error) {
+    if (error.toString().contains('500')) {
+      return 'We could not process your image properly. This could be because:\n\n'
+          '• The face in the image is not clear enough\n'
+          '• The lighting conditions are not optimal\n'
+          '• The image quality is too low';
+    } else if (error.toString().contains('timeout')) {
+      return 'The connection timed out. Please check your internet connection and try again.';
+    } else {
+      return 'An unexpected error occurred. Please try again or use a different photo.';
+    }
+  }
+
   Future<void> _handleContinue() async {
     if (selectedFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -101,12 +163,34 @@ class _GenderSelectionScreenState extends State<GenderSelectionScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      print('Prediction failed: $e');
+      _showErrorDialog(
+        'Image Processing Failed',
+        _getErrorMessage(e),
+        onRetry: _handleContinue,
+      );
+
+      // Also show a snackbar for immediate feedback
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to analyze image: ${e.toString()}'),
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                    'Failed to analyze image. Please check the error details.'),
+              ),
+            ],
+          ),
           backgroundColor: Colors.red,
-          duration: Duration(seconds: 5),
+          duration: Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'DISMISS',
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
         ),
       );
     } finally {

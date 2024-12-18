@@ -5,6 +5,7 @@ import '../../router/app_router.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/datasource/remote/auth_remote_datasource.dart';
 import '../../data/datasource/local/auth_local_datasource.dart';
+import 'feedback_screen.dart';
 import 'information_screen.dart';
 import 'notification_screen.dart';
 
@@ -121,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       null
                                   ? NetworkImage(_userData!.data!.user!.avatar!)
                                   : const AssetImage(
-                                          'assets/images/profile.png')
+                                          'assets/images/default-avatar.png')
                                       as ImageProvider,
                             ),
                             const SizedBox(width: 16),
@@ -188,6 +189,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const NotificationScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.feedback,
+                            size: 30, color: Colors.black87),
+                        title: const Text(
+                          'Feedback',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const FeedbackScreen(),
                             ),
                           );
                         },

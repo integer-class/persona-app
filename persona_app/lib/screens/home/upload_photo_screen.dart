@@ -223,7 +223,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                       child: const CircleAvatar(
                         radius: 20,
                         backgroundImage:
-                            AssetImage('assets/images/profile.png'),
+                            AssetImage('assets/images/default-avatar.png'),
                       ),
                     ),
                     const SizedBox(width: 10),

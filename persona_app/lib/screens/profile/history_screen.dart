@@ -25,17 +25,40 @@ class HistoryScreen extends StatelessWidget {
         return false;
       },
       child: Scaffold(
+                extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: const Text(
-            'History',
+            title: const Text(
+            'Style History',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               fontSize: 24,
+              letterSpacing: 0.5,
+              color: Colors.white,
+            ),
+            ),
+          centerTitle: true,
+          backgroundColor: Colors.black.withOpacity(0.7),
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+              size: 20,
+            ),
+            onPressed: () => context.go(RouteConstants.profileRoute),
+          ),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black,
+                  Colors.black.withOpacity(0.0),
+                ],
+              ),
             ),
           ),
-          centerTitle: true,
-          backgroundColor: Colors.black,
-          elevation: 0,
         ),
         body: FutureBuilder<List<History>>(
           future: _fetchHistory(),

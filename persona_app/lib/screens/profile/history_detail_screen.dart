@@ -68,7 +68,41 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
     };
     return faceShapes[shapeId] ?? 'Unknown';
   }
-  
+
+  String _getHairStyleName(int styleId) {
+    Map<int, String> hairStyles = {
+      // Male hairstyles
+      1: 'Pompadour',
+      2: 'Undercut',
+      3: 'Comb-over fade',
+      4: 'Man bun',
+      5: 'French crop',
+      6: 'High skin fade',
+      7: 'Side part',
+      8: 'Flat top',
+      9: 'Side-swept brush-up',
+      10: 'Buzzcut',
+      11: 'Crew cut',
+      12: 'Shoulder-length hair',
+      13: 'Textured Quiff',
+
+      // Female hairstyles
+      14: 'Long layers',
+      15: 'Bob cut',
+      16: 'Side-swept bangs',
+      17: 'Long layers with volume on top',
+      18: 'Asymmetrical Bob',
+      19: 'Pixie Cut with Volume',
+      20: 'Soft, wispy bangs',
+      21: 'Long, Soft layers',
+      22: 'Side-parted styles',
+      23: 'Long, side-swept bangs',
+      24: 'Chin-length bob',
+      25: 'Wavy lob',
+    };
+    return hairStyles[styleId] ?? 'Unknown Style';
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -237,38 +271,75 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
     );
   }
 
-  Widget _buildSelectionButton(
-      String label, String imagePath, int? selectedId) {
-    return Column(
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: Colors.grey),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(25),
-            child: Image.asset(
-              imagePath,
-              width: 50,
-              height: 50,
-              color: Colors.grey, // Disabled state
-            ),
-          ),
-        ),
-        SizedBox(height: 10),
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey, fontSize: 12),
-        ),
-        if (selectedId != null)
-          Text(
-            'Selected: #$selectedId',
-            style: TextStyle(color: Colors.grey, fontSize: 10),
-          ),
-      ],
-    );
+  Widget _buildSelectionButton(String label, String imagePath, int? selectedId) {
+  String getAccessoryName(int id) {
+    Map<int, String> accessories = {
+      // Glasses (Unisex)
+      1: 'Transparent frames',
+      2: 'Full-rimmed frames', 
+      3: 'Wooden frames',
+      4: 'Square glasses',
+      5: 'Round glasses',
+      6: 'Browline glasses',
+      7: 'Colored oval glasses',
+      8: 'Oval glasses',
+      9: 'Semi-rimless',
+      10: 'Rectangular glasses',
+
+      // Earrings (Female)
+      11: 'Hoop earrings',
+      12: 'Teardrop earrings',
+      13: 'Geometric earrings',
+      14: 'Long dangle earrings',
+      15: 'Circular earrings',
+      16: 'Round or hoops earrings',
+      17: 'Long and slender earrings',
+      18: 'Teardrop earrings curved',
+      19: 'Angular earrings',
+      20: 'Wide hoop earrings',
+      21: 'Wide cascading earrings',
+      22: 'Curved circular earrings',
+      23: 'Linear earrings',
+      24: 'Chandelier earrings',
+      25: 'Triangle earrings',
+      26: 'Stud earrings',
+    };
+    return accessories[id] ?? 'Unknown Accessory';
   }
+
+  return Column(
+    children: [
+      Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(color: Colors.grey),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(25),
+          child: Image.asset(
+            imagePath,
+            width: 50,
+            height: 50,
+            color: Colors.grey,
+          ),
+        ),
+      ),
+      SizedBox(height: 10),
+      Text(
+        label == 'Hair Styles' && selectedId != null
+            ? _getHairStyleName(selectedId)
+            : (selectedId != null ? getAccessoryName(selectedId) : label),
+        style: TextStyle(color: Colors.grey, fontSize: 12),
+        textAlign: TextAlign.center,
+      ),
+      if (selectedId != null)
+        Text(
+          '#$selectedId',
+          style: TextStyle(color: Colors.grey, fontSize: 10),
+        ),
+    ],
+  );
+}
 }

@@ -36,23 +36,30 @@ class HistoryRemoteDatasource {
   }
 
   Future<void> saveHistoryNote(int historyId, String note) async {
-    try {
-      final authData = await _authLocalDatasource.getAuthData();
-      final response = await http.post(
-        Uri.parse('$baseUrl/history/$historyId/note'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Token ${authData?.data!.token}',
-        },
-        body: jsonEncode({'note': note}),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to save note');
-      }
-    } catch (e) {
-      print('Error saving note: $e');
-      rethrow;
+  try {
+    final authData = await _authLocalDatasource.getAuthData();
+    if (authData == null || authData.data?.token == null) {
+      throw Exception('Authentication token not found');
     }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/history/$historyId/note/'), // Added trailing slash
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token ${authData.data!.token}',
+      },
+      body: jsonEncode({'note': note}),
+    );
+
+    print('Response status: ${response.statusCode}'); // Debug response
+    print('Response body: ${response.body}'); // Debug response body
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to save note: ${response.body}');
+    }
+  } catch (e) {
+    print('Detailed error in saveHistoryNote: $e');
+    throw Exception('Failed to save note: $e');
   }
+}
 }

@@ -8,172 +8,69 @@ import '../../data/models/user_choice_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/prediction_repository.dart';
 import '../../router/app_router.dart';
-import '../home/upload_photo_screen.dart'; // Import the upload photo screen
+import '../utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _rememberMe = false; // State for Remember Me toggle
-  final TextEditingController _usernameController =
-      TextEditingController(); // Username input controller
-  final TextEditingController _passwordController =
-      TextEditingController(); // Password input controller
-  final AuthRepository _authRepository = AuthRepository(
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authRepository = AuthRepository(
     AuthRemoteDataSource(),
     AuthLocalDatasource(),
-  ); // AuthService instance
-  bool _isLoading = false; // Loading state for login process
+  );
+
+  bool _obscurePassword = true;
+  bool _rememberMe = false;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Handle back button press
-        context.go(RouteConstants.uploadRoute); // Navigate to login screen
-        return false; // Disable back button
+        context.go(RouteConstants.uploadRoute);
+        return false;
       },
       child: Scaffold(
-        resizeToAvoidBottomInset:
-            true, // Allow the screen to resize when the keyboard is open
-        body: SingleChildScrollView(
-          child: Container(
-            width: double.infinity, // Full width
-            padding: EdgeInsets.all(16.0), // Padding around the content
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 60), // Space for keyboard overlay
-
-                // Custom logo image
-                Center(
-                  child: Image.asset(
-                    'assets/images/Frame-2.png', // Image path
-                    width: 120, // Adjust the width as needed
-                    height: 120, // Adjust the height as needed
-                  ),
-                ),
-                const SizedBox(height: 20), // Space between image and title
-
-                // Title "Sign in"
-                Text(
-                  'Sign in',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30), // Space between title and fields
-
-                // Username input field
-                TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    hintText: 'Insert Username',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16), // Space between fields
-
-                // Password input field
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true, // Hide password input
-                  decoration: InputDecoration(
-                    hintText: 'Insert Password',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16), // Space between fields
-
-                // Remember Me toggle switch
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Switch(
-                      value: _rememberMe,
-                      onChanged: (value) {
-                        setState(() {
-                          _rememberMe = value;
-                        });
-                      },
-                    ),
-                    Text(
-                      'Remember Me',
-                      style: TextStyle(
-                        color: Color(0xFF110C26),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30), // Space between switch and button
-
-                // Sign In button
-                ElevatedButton(
-                  onPressed: _isLoading
-                      ? null
-                      : _login, // Disable button while loading
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black, // Button color
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? CircularProgressIndicator(
-                          color: Colors.white) // Loading indicator
-                      : Text(
-                          'SIGN IN',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                ),
-                const SizedBox(
-                    height: 20), // Space between button and sign up prompt
-
-                // Sign Up prompt
-                GestureDetector(
-                  onTap: () {
-                    // Navigate to the signup screen
-                    context.go(RouteConstants.signupRoute);
-                  },
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Don’t have an account?  ',
-                          style: TextStyle(
-                            color: Color(0xFF110C26),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Sign up',
-                          style: TextStyle(
-                            color: Color(0xFFFFA1BF),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 60),
+                  _buildLogo(),
+                  const SizedBox(height: 20),
+                  _buildTitle(),
+                  const SizedBox(height: 30),
+                  _buildUsernameField(),
+                  const SizedBox(height: 16),
+                  _buildPasswordField(),
+                  const SizedBox(height: 16),
+                  _buildRememberMeSwitch(),
+                  const SizedBox(height: 30),
+                  _buildLoginButton(),
+                  const SizedBox(height: 20),
+                  _buildSignUpPrompt(),
+                ],
+              ),
             ),
           ),
         ),
@@ -181,67 +78,216 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login() async {
-    setState(() {
-      _isLoading = true; // Start loading
-    });
+  Widget _buildLogo() {
+    return Center(
+      child: Image.asset(
+        'assets/images/Frame-2.png',
+        width: 120,
+        height: 120,
+      ),
+    );
+  }
 
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+  Widget _buildTitle() {
+    return const Text(
+      'Sign in',
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 24,
+        fontWeight: FontWeight.w700,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget _buildUsernameField() {
+    return TextFormField(
+      controller: _usernameController,
+      decoration: const InputDecoration(
+        hintText: 'Insert Username',
+        border: OutlineInputBorder(),
+        prefixIcon: Icon(Icons.person),
+      ),
+      validator: FormValidators.validateUsername,
+      textInputAction: TextInputAction.next,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
+      obscureText: _obscurePassword,
+      decoration: InputDecoration(
+        hintText: 'Insert Password',
+        border: const OutlineInputBorder(),
+        prefixIcon: const Icon(Icons.lock),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePassword ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscurePassword = !_obscurePassword;
+            });
+          },
+        ),
+      ),
+      validator: FormValidators.validatePassword,
+      textInputAction: TextInputAction.done,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+    );
+  }
+
+  Widget _buildRememberMeSwitch() {
+    return Row(
+      children: [
+        Switch(
+          value: _rememberMe,
+          onChanged: (value) {
+            setState(() => _rememberMe = value);
+          },
+        ),
+        const Text(
+          'Remember Me',
+          style: TextStyle(
+            color: Color(0xFF110C26),
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return ElevatedButton(
+      onPressed: _isLoading ? null : _handleLogin,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: _isLoading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            )
+          : const Text(
+              'SIGN IN',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+              ),
+            ),
+    );
+  }
+
+  Widget _buildSignUpPrompt() {
+    return GestureDetector(
+      onTap: () => context.go(RouteConstants.signupRoute),
+      child: const Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: 'Dont have an account?',
+              style: TextStyle(
+                color: Color(0xFF110C26),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            TextSpan(
+              text: 'Sign up',
+              style: TextStyle(
+                color: Color(0xFFFFA1BF),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isLoading = true);
 
     try {
-      final authResponse = await _authRepository.login(username, password);
-      setState(() {
-        _isLoading = false; // Stop loading
-      });
+      await _authRepository.login(
+        _usernameController.text,
+        _passwordController.text,
+      );
 
-      // Check if there is a user selection to save
-      final args = GoRouterState.of(context).extra as Map<String, dynamic>?;
-      if (args != null && args['userSelection'] != null) {
-        final userSelection = args['userSelection'] as UserSelection;
-        final predictionRepository = PredictionRepository(
-          PredictionLocalDataSource(),
-          PredictionRemoteDataSource(),
-        );
-        await predictionRepository.saveUserSelection(userSelection);
-        _showSuccessDialog('User selection saved successfully.');
-      }
+      if (!mounted) return;
 
-      // Navigate to the History Screen on successful login
+      await _handleUserSelection();
       context.go(RouteConstants.historyRoute);
     } catch (e) {
-      setState(() {
-        _isLoading = false; // Stop loading
-      });
-      // Show error message with specific wrong password message
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Login Failed'),
-            content: Text(e.toString()),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      if (!mounted) return;
+      _showErrorDialog('Login Failed', e.toString());
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
+  }
+
+  Future<void> _handleUserSelection() async {
+    final args = GoRouterState.of(context).extra as Map<String, dynamic>?;
+    if (args?['userSelection'] == null) return;
+
+    final userSelection = args!['userSelection'] as UserSelection;
+    final predictionRepository = PredictionRepository(
+      PredictionLocalDataSource(),
+      PredictionRemoteDataSource(),
+    );
+
+    await predictionRepository.saveUserSelection(userSelection);
+    if (!mounted) return;
+    _showSuccessDialog('Selection saved successfully');
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSuccessDialog(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Success'),
+        title: const Text('Success'),
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
           ),
         ],
       ),

@@ -113,11 +113,38 @@ class _EditScreenState extends State<EditScreen> {
       );
     }
 
+    bool _hasSelectedAnyRecommendation(SelectionProvider provider) {
+      return provider.selectedHairstyle != null ||
+          provider.selectedGlasses != null ||
+          provider.selectedEarrings != null;
+    }
+
+    void _showNoSelectionDialog() {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('No Selection Made'),
+          content:
+              Text('Please select at least one recommendation before saving.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+
     Future<void> _saveUserSelection() async {
       final selectionProvider =
           Provider.of<SelectionProvider>(context, listen: false);
       final args = GoRouterState.of(context).extra as Map<String, dynamic>?;
       final Prediction? prediction = args?['prediction'];
+      if (!_hasSelectedAnyRecommendation(selectionProvider)) {
+        _showNoSelectionDialog();
+        return;
+      }
 
       if (prediction != null) {
         final userSelection = UserSelection(
@@ -137,7 +164,8 @@ class _EditScreenState extends State<EditScreen> {
           context.go(RouteConstants.uploadRoute, extra: {'showSuccess': true});
         } catch (e) {
           print('Error saving user selection: $e');
-          _showErrorDialog('Without logging in, you cannot save your selection.');
+          _showErrorDialog(
+              'Without logging in, you cannot save your selection.');
           _showLoginDialog();
         }
       } else {
@@ -169,11 +197,15 @@ class _EditScreenState extends State<EditScreen> {
           centerTitle: true,
           actions: [
             TextButton(
-              onPressed: _saveUserSelection,
+              onPressed: _hasSelectedAnyRecommendation(selectionProvider)
+                  ? _saveUserSelection
+                  : null, // Disable button when no selection
               child: Text(
                 'Save',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: _hasSelectedAnyRecommendation(selectionProvider)
+                      ? Colors.white
+                      : Colors.grey, // Grey out text when disabled
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),

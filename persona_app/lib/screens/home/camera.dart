@@ -140,15 +140,15 @@ class _CameraScreenState extends State<CameraScreen>
                     animation: _pulseAnimation,
                     builder: (context, child) {
                       return Container(
-                        width: 300 * _pulseAnimation.value,
-                        height: 380 *
+                        width: 230 * _pulseAnimation.value,
+                        height: 310 *
                             _pulseAnimation.value, // Higher than width for oval
                         decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.all(
                             Radius.elliptical(
                               230 * _pulseAnimation.value,
-                              200 * _pulseAnimation.value,
+                              230 * _pulseAnimation.value,
                             ),
                           ),
                           border: Border.all(
@@ -161,12 +161,12 @@ class _CameraScreenState extends State<CameraScreen>
                   ),
                   // Inner fixed circle
                   Container(
-                    width: 380,
-                    height: 460, // Higher than width for oval
+                    width: 220,
+                    height: 300, // Higher than width for oval
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.all(
-                        Radius.elliptical(240, 230),
+                        Radius.elliptical(150, 170),
                       ),
                       border: Border.all(
                         color: Colors.white,

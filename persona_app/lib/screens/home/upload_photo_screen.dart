@@ -1,4 +1,7 @@
+import 'package:Persona/screens/home/camera.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
@@ -128,32 +131,6 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
     );
   }
 
-  // Function to pick image from gallery
-  Future<void> _pickImageFromGallery() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-      _navigateToGenderSelection(File(pickedFile.path)); // Navigate immediately
-    }
-  }
-
-  // Function to capture image from camera
-  Future<void> _captureImageWithCamera() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
-
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-      _navigateToGenderSelection(File(pickedFile.path)); // Navigate immediately
-    }
-  }
-
   void _navigateToGenderSelection(File image) {
     context.go(
       RouteConstants.genderSelectionRoute,
@@ -161,36 +138,19 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
     );
   }
 
-  // Function to show dialog for image source selection
-  void _showImageSourceDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Image Source'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo),
-              title: const Text('Gallery'),
-              onTap: () {
-                Navigator.pop(context); // Close dialog
-                _pickImageFromGallery();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-              onTap: () {
-                Navigator.pop(context); // Close dialog
-                _captureImageWithCamera();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+  void _openCamera() async {
+  final File? image = await Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const CameraScreen()),
+  );
+  
+  if (image != null) {
+    setState(() {
+      _selectedImage = image;
+    });
+    _navigateToGenderSelection(image);
   }
+}
 
   @override
   void dispose() {
@@ -278,7 +238,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
               Center(
                 child: ElevatedButton(
                   onPressed:
-                      _showImageSourceDialog, // Open dialog for image source
+                      _openCamera, // Open dialog for image source
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 15),
